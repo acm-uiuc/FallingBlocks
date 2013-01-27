@@ -48,6 +48,7 @@ color[] colorPalette;
 PBox2D box2d;
 // list to hold all the custom shapes (circles, polygons)
 ArrayList<CustomShape> polygons = new ArrayList<CustomShape>();
+ArrayList<CustomShape> userpolys = new ArrayList<CustomShape>();
 
 void setup() {
   // it's possible to customize this, for example 1920x1080
@@ -105,21 +106,21 @@ void draw() {
   }
   cam.updatePixels();
   // copy the image into the smaller blob image
-  blobs.copy(cam, 0, 0, cam.width, cam.height, 0, 0, blobs.width, blobs.height);
+  //blobs.copy(cam, 0, 0, cam.width, cam.height, 0, 0, blobs.width, blobs.height);
   // blur the blob image
-  blobs.filter(BLUR, 1);
+  //blobs.filter(BLUR, 1);
   // detect the blobs
-  theBlobDetection.computeBlobs(blobs.pixels);
+  //theBlobDetection.computeBlobs(blobs.pixels);
   // initialize a new polygon
-  poly = new PolygonBlob();
+  //poly = new PolygonBlob();
   // create the polygon from the blobs (custom functionality, see class)
-  poly.createPolygon();
+  //poly.createPolygon();
   // create the box2d body from the polygon
-  poly.createBody();
+  //poly.createBody();
   // update and draw everything (see method)
   updateAndDrawBox2D();
   // destroy the person's body (important!)
-  poly.destroyBody();
+  //poly.destroyBody();
   // set the colors randomly every 240th frame
   setRandomColors(240);
   //*/
@@ -146,9 +147,9 @@ void updateAndDrawBox2D() {
   scale(reScale);
 
   // display the person's polygon  
-  noStroke();
-  fill(blobColor);
-  gfx.polygon2D(poly);
+  //noStroke();
+  //fill(blobColor);
+  //gfx.polygon2D(poly);
 
   // display all the shapes (circles, polygons)
   // go backwards to allow removal of shapes

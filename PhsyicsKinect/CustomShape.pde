@@ -63,12 +63,13 @@ class CustomShape {
   // method to loosely move shapes outside a person's polygon
   // (alternatively you could allow or remove shapes inside a person's polygon)
   void update() {
+    /*
     // get the screen position from this shape (circle of polygon)
     Vec2 posScreen = box2d.getBodyPixelCoord(body);
     // turn it into a toxiclibs Vec2D
     Vec2D toxiScreen = new Vec2D(posScreen.x, posScreen.y);
     // check if this shape's position is inside the person's polygon
-    boolean inBody = poly.containsPoint(toxiScreen);
+    boolean inBody = false; //poly.containsPoint(toxiScreen);
     // if a shape is inside the person
     if (inBody) {
       // find the closest point on the polygon to the current position
@@ -88,6 +89,7 @@ class CustomShape {
       // set the box2d body's position of this CustomShape to the new position (use the current angle)
       body.setTransform(posWorld, angle);
     }
+    */
   }
 
   // display the customShape
