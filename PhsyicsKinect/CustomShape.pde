@@ -53,7 +53,7 @@ class CustomShape {
       FixtureDef fd = new FixtureDef();
       fd.shape = cs;
       fd.density = 1;
-      fd.friction = 0.01;
+      fd.friction = 0.9901;
       fd.restitution = 0.3;
       // create the fixture from the shape's fixture def (deflect things based on the actual circle shape)
       body.createFixture(fd);
@@ -116,7 +116,7 @@ class CustomShape {
   // and return true (which will lead to the removal of this CustomShape object)
   boolean done() {
     Vec2 posScreen = box2d.getBodyPixelCoord(body);
-    boolean offscreen = posScreen.y > height;
+    boolean offscreen = posScreen.y < 0;
     if (offscreen) {
       box2d.destroyBody(body);
       return true;

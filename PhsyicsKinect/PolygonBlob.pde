@@ -108,7 +108,7 @@ class PolygonBlob extends Polygon2D {
       ChainShape chain = new ChainShape();
       chain.createChain(verts, verts.length);
       // create fixture in body from the chain (this makes it actually deflect other shapes)
-      body.createFixture(chain, 1);
+      body.createFixture(chain, 1000.1);
     }
   }
 

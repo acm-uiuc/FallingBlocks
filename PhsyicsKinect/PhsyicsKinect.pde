@@ -23,6 +23,9 @@ ToxiclibsSupport gfx;
 // declare custom PolygonBlob object (see class for more info)
 PolygonBlob poly;
 
+boolean autoCalib=true;
+
+
 // PImage to hold incoming imagery and smaller one for blob detection
 PImage cam, blobs;
 // the kinect's dimensions to be used later on for calculations
@@ -50,6 +53,15 @@ void setup() {
   // it's possible to customize this, for example 1920x1080
   size(1280, 720, OPENGL);
   context = new SimpleOpenNI(this);
+  
+  // enable skeleton generation for all joints
+  println("Setting up skeletal tracking");
+  context.enableDepth();
+  //context.enableRGB();
+  context.enableScene();
+  //context.enableUser(SimpleOpenNI.SKEL_PROFILE_ALL);
+  println("Done with skeletal tracking");
+
   // initialize SimpleOpenNI object
   if (!context.enableScene()) { 
     // if context.enableScene() returns false
@@ -74,7 +86,7 @@ void setup() {
     // setup box2d, create world, set gravity
     box2d = new PBox2D(this);
     box2d.createWorld();
-    box2d.setGravity(0, -20);
+    box2d.setGravity(0, 20);
     // set random colors (background, blob)
     setRandomColors(1);
   }
@@ -86,6 +98,12 @@ void draw() {
   context.update();
   // put the image into a PImage
   cam = context.sceneImage().get();
+  int[] map = context.sceneMap();
+  cam.loadPixels();
+  for (int i=0; i<map.length; i++) {
+     if (map[i] == 0) cam.pixels[i] = 0;
+  }
+  cam.updatePixels();
   // copy the image into the smaller blob image
   blobs.copy(cam, 0, 0, cam.width, cam.height, 0, 0, blobs.width, blobs.height);
   // blur the blob image
@@ -104,13 +122,21 @@ void draw() {
   poly.destroyBody();
   // set the colors randomly every 240th frame
   setRandomColors(240);
+  //*/
+    // draw the skeleton if it's available
+  int[] userList = context.getUsers();
+  for(int i=0;i<userList.length;i++)
+  {
+    if(context.isTrackingSkeleton(userList[i]))
+      drawSkeleton(userList[i]);
+  }    
 }
 
 void updateAndDrawBox2D() {
   // if frameRate is sufficient, add a polygon and a circle with a random radius
   if (frameRate > 29 && polygons.size() < MAX_SHAPES) {
-    polygons.add(new CustomShape(kinectWidth/2, -50, -1));
-    polygons.add(new CustomShape(kinectWidth/2, -50, random(2.5, 20)));
+    polygons.add(new CustomShape(kinectWidth/2, height+50, -1));
+    polygons.add(new CustomShape(kinectWidth/2, height+50, random(2.5, 20)));
   }
   // take one step in the box2d physics world
   box2d.step();
@@ -162,3 +188,105 @@ void setRandomColors(int nthFrame) {
 color getRandomColor() {
   return colorPalette[int(random(1, colorPalette.length))];
 }
+
+
+// draw the skeleton with the selected joints
+void drawSkeleton(int userId)
+{
+  // to get the 3d joint data
+  /*
+  PVector jointPos = new PVector();
+  context.getJointPositionSkeleton(userId,SimpleOpenNI.SKEL_NECK,jointPos);
+  println(jointPos);
+  */
+  
+  context.drawLimb(userId, SimpleOpenNI.SKEL_HEAD, SimpleOpenNI.SKEL_NECK);
+
+  context.drawLimb(userId, SimpleOpenNI.SKEL_NECK, SimpleOpenNI.SKEL_LEFT_SHOULDER);
+  context.drawLimb(userId, SimpleOpenNI.SKEL_LEFT_SHOULDER, SimpleOpenNI.SKEL_LEFT_ELBOW);
+  context.drawLimb(userId, SimpleOpenNI.SKEL_LEFT_ELBOW, SimpleOpenNI.SKEL_LEFT_HAND);
+
+  context.drawLimb(userId, SimpleOpenNI.SKEL_NECK, SimpleOpenNI.SKEL_RIGHT_SHOULDER);
+  context.drawLimb(userId, SimpleOpenNI.SKEL_RIGHT_SHOULDER, SimpleOpenNI.SKEL_RIGHT_ELBOW);
+  context.drawLimb(userId, SimpleOpenNI.SKEL_RIGHT_ELBOW, SimpleOpenNI.SKEL_RIGHT_HAND);
+
+  context.drawLimb(userId, SimpleOpenNI.SKEL_LEFT_SHOULDER, SimpleOpenNI.SKEL_TORSO);
+  context.drawLimb(userId, SimpleOpenNI.SKEL_RIGHT_SHOULDER, SimpleOpenNI.SKEL_TORSO);
+
+  context.drawLimb(userId, SimpleOpenNI.SKEL_TORSO, SimpleOpenNI.SKEL_LEFT_HIP);
+  context.drawLimb(userId, SimpleOpenNI.SKEL_LEFT_HIP, SimpleOpenNI.SKEL_LEFT_KNEE);
+  context.drawLimb(userId, SimpleOpenNI.SKEL_LEFT_KNEE, SimpleOpenNI.SKEL_LEFT_FOOT);
+
+  context.drawLimb(userId, SimpleOpenNI.SKEL_TORSO, SimpleOpenNI.SKEL_RIGHT_HIP);
+  context.drawLimb(userId, SimpleOpenNI.SKEL_RIGHT_HIP, SimpleOpenNI.SKEL_RIGHT_KNEE);
+  context.drawLimb(userId, SimpleOpenNI.SKEL_RIGHT_KNEE, SimpleOpenNI.SKEL_RIGHT_FOOT);  
+}
+
+
+// -----------------------------------------------------------------
+// SimpleOpenNI events
+
+void onNewUser(int userId)
+{
+  println("onNewUser - userId: " + userId);
+  println("  start pose detection");
+  
+  if(autoCalib)
+    context.requestCalibrationSkeleton(userId,true);
+  else    
+    context.startPoseDetection("Psi",userId);
+}
+
+void onLostUser(int userId)
+{
+  println("onLostUser - userId: " + userId);
+}
+
+void onExitUser(int userId)
+{
+  println("onExitUser - userId: " + userId);
+}
+
+void onReEnterUser(int userId)
+{
+  println("onReEnterUser - userId: " + userId);
+}
+
+void onStartCalibration(int userId)
+{
+  println("onStartCalibration - userId: " + userId);
+}
+
+void onEndCalibration(int userId, boolean successfull)
+{
+  println("onEndCalibration - userId: " + userId + ", successfull: " + successfull);
+  
+  if (successfull) 
+  { 
+    println("  User calibrated !!!");
+    context.startTrackingSkeleton(userId); 
+  } 
+  else 
+  { 
+    println("  Failed to calibrate user !!!");
+    println("  Start pose detection");
+    context.startPoseDetection("Psi",userId);
+  }
+}
+
+void onStartPose(String pose,int userId)
+{
+  println("onStartPose - userId: " + userId + ", pose: " + pose);
+  println(" stop pose detection");
+  
+  context.stopPoseDetection(userId); 
+  context.requestCalibrationSkeleton(userId, true);
+ 
+}
+
+void onEndPose(String pose,int userId)
+{
+  println("onEndPose - userId: " + userId + ", pose: " + pose);
+}
+
+
