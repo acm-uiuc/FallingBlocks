@@ -48,7 +48,7 @@ color[] colorPalette;
 PBox2D box2d;
 // list to hold all the custom shapes (circles, polygons)
 ArrayList<CustomShape> polygons = new ArrayList<CustomShape>();
-ArrayList<CustomShape> userpolys = new ArrayList<CustomShape>();
+ArrayList<UserShape> userpolys = new ArrayList<UserShape>();
 
 void setup() {
   // it's possible to customize this, for example 1920x1080
@@ -100,11 +100,24 @@ void draw() {
   // put the image into a PImage
   cam = context.sceneImage().get();
   int[] map = context.sceneMap();
-  cam.loadPixels();
-  for (int i=0; i<map.length; i++) {
-     if (map[i] == 0) cam.pixels[i] = 0;
+  int[] depth = context.depthMap();
+//  for (int y=0; y<kinectHeight; y+=3) {
+//    for (int x=0; x<kinectWidth; x+=3) {
+//      if (noise(x,y) > 0.9) {
+//        if (map[x+y*kinectWidth] != 0 && userpolys.size() < 1000) {
+//          userpolys.add(new UserShape(x, y, 10));
+//        }
+//      }
+//    }
+//  }
+  for (int i=0; i<200; i++) {
+    int x = int(random(0, kinectWidth));
+    int y = int(random(0, kinectHeight));
+    int loc = x+y*kinectWidth;
+    if (map[loc] != 0 && userpolys.size() < 500) {
+      userpolys.add(new UserShape(x, y, depth[loc]/250));
+    }
   }
-  cam.updatePixels();
   // copy the image into the smaller blob image
   //blobs.copy(cam, 0, 0, cam.width, cam.height, 0, 0, blobs.width, blobs.height);
   // blur the blob image
@@ -164,6 +177,21 @@ void updateAndDrawBox2D() {
       cs.display();
     }
   }
+  
+  // display all the shapes (circles, polygons)
+  // go backwards to allow removal of shapes
+  for (int i=userpolys.size()-1; i>=0; i--) {
+    UserShape cs = userpolys.get(i);
+    // if the shape is off-screen remove it (see class for more info)
+    if (cs.done()) {
+      userpolys.remove(i);
+    // otherwise update (keep shape outside person) and display (circle or polygon)
+    } else {
+      cs.update();
+      cs.display();
+    }
+  }
+
 }
 
 // sets the colors every nth frame
