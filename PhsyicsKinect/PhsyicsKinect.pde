@@ -110,12 +110,17 @@ void draw() {
 //      }
 //    }
 //  }
-  for (int i=0; i<200; i++) {
-    int x = int(random(0, kinectWidth));
-    int y = int(random(0, kinectHeight));
-    int loc = x+y*kinectWidth;
-    if (map[loc] != 0 && userpolys.size() < 500) {
-      userpolys.add(new UserShape(x, y, depth[loc]/250));
+  if (frameCount % 1 == 0) {
+    for (int i=0; i<200; i++) {
+      int x = int(random(0, kinectWidth));
+      int y = int(random(0, kinectHeight));
+      int loc = x+y*kinectWidth;
+      if (map[loc] != 0 && userpolys.size() < 500) {
+        float size = 20-depth[loc]/250;
+        float randomsize = random(10,20);
+        
+        userpolys.add(new UserShape(x, y, size, map[loc]));
+      }
     }
   }
   // copy the image into the smaller blob image
@@ -135,7 +140,7 @@ void draw() {
   // destroy the person's body (important!)
   //poly.destroyBody();
   // set the colors randomly every 240th frame
-  setRandomColors(240);
+  //setRandomColors(240);
   //*/
     // draw the skeleton if it's available
   int[] userList = context.getUsers();
@@ -152,8 +157,11 @@ void updateAndDrawBox2D() {
     polygons.add(new CustomShape(kinectWidth/2, height+50, -1));
     polygons.add(new CustomShape(kinectWidth/2, height+50, random(2.5, 20)));
   }
+  int start = millis();
   // take one step in the box2d physics world
   box2d.step();
+  int end = millis();
+  println("time in box2d update: "+(end-start));
 
   // center and reScale from Kinect to custom dimensions
   translate(0, (height-kinectHeight*reScale)/2);
@@ -164,6 +172,8 @@ void updateAndDrawBox2D() {
   //fill(blobColor);
   //gfx.polygon2D(poly);
 
+
+  start = millis();
   // display all the shapes (circles, polygons)
   // go backwards to allow removal of shapes
   for (int i=polygons.size()-1; i>=0; i--) {
@@ -177,7 +187,10 @@ void updateAndDrawBox2D() {
       cs.display();
     }
   }
+  println("time in drawing other shapes: "+(millis()-start));
   
+  
+  start = millis();
   // display all the shapes (circles, polygons)
   // go backwards to allow removal of shapes
   for (int i=userpolys.size()-1; i>=0; i--) {
@@ -191,6 +204,8 @@ void updateAndDrawBox2D() {
       cs.display();
     }
   }
+  println("time in drawing polygons: "+(millis()-start));
+
 
 }
 
