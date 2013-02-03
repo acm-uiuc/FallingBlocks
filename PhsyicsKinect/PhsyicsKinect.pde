@@ -60,7 +60,7 @@ void setup() {
   context.enableDepth();
   //context.enableRGB();
   context.enableScene();
-  //context.enableUser(SimpleOpenNI.SKEL_PROFILE_ALL);
+  context.enableUser(SimpleOpenNI.SKEL_PROFILE_ALL);
   println("Done with skeletal tracking");
 
   // initialize SimpleOpenNI object
@@ -161,7 +161,7 @@ void updateAndDrawBox2D() {
   // take one step in the box2d physics world
   box2d.step();
   int end = millis();
-  println("time in box2d update: "+(end-start));
+  //println("time in box2d update: "+(end-start));
 
   // center and reScale from Kinect to custom dimensions
   translate(0, (height-kinectHeight*reScale)/2);
@@ -187,7 +187,7 @@ void updateAndDrawBox2D() {
       cs.display();
     }
   }
-  println("time in drawing other shapes: "+(millis()-start));
+  //println("time in drawing other shapes: "+(millis()-start));
   
   
   start = millis();
@@ -204,7 +204,7 @@ void updateAndDrawBox2D() {
       cs.display();
     }
   }
-  println("time in drawing polygons: "+(millis()-start));
+  //println("time in drawing polygons: "+(millis()-start));
 
 
 }
@@ -243,6 +243,25 @@ void drawSkeleton(int userId)
   context.getJointPositionSkeleton(userId,SimpleOpenNI.SKEL_NECK,jointPos);
   println(jointPos);
   */
+  
+  PVector jointPos = new PVector();
+  PVector screenPos = new PVector();
+  context.getJointPositionSkeleton(userId,SimpleOpenNI.SKEL_LEFT_HAND,jointPos);
+  context.convertRealWorldToProjective(jointPos, screenPos);
+  //println(jointPos);
+  fill(255, 0, 0, 255);
+  noStroke();
+  ellipse(screenPos.x, screenPos.y, 10, 10);
+  
+  context.getJointPositionSkeleton(userId,SimpleOpenNI.SKEL_RIGHT_HAND,jointPos);
+  context.convertRealWorldToProjective(jointPos, screenPos);
+  println(jointPos);
+  println(screenPos);
+  fill(0,255, 0, 255);
+  noStroke();
+  ellipse(screenPos.x, screenPos.y, 10, 10);
+
+
   
   context.drawLimb(userId, SimpleOpenNI.SKEL_HEAD, SimpleOpenNI.SKEL_NECK);
 
