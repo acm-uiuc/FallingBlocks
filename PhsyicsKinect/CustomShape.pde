@@ -12,6 +12,7 @@ class CustomShape {
   float r;
 
   CustomShape(float x, float y, float r) {
+    if (r == -1) r = random(5,15);
     this.r = r;
     // create a body (polygon or circle based on the r)
     makeBody(x, y);
@@ -55,6 +56,11 @@ class CustomShape {
       fd.density = 1;
       fd.friction = 0.9901;
       fd.restitution = 0.3;
+      Filter filter = new Filter();
+      filter.categoryBits = FALLING_SHAPES;
+      filter.maskBits = USER_SHAPES+FALLING_SHAPES+USER_FIGURE_SHAPES+INTERACTION_SHAPES;
+      fd.filter = filter;
+
       // create the fixture from the shape's fixture def (deflect things based on the actual circle shape)
       body.createFixture(fd);
     }
@@ -118,7 +124,7 @@ class CustomShape {
   // and return true (which will lead to the removal of this CustomShape object)
   boolean done() {
     Vec2 posScreen = box2d.getBodyPixelCoord(body);
-    boolean offscreen = posScreen.y < 0;
+    boolean offscreen = posScreen.y > height;
     if (offscreen) {
       box2d.destroyBody(body);
       return true;

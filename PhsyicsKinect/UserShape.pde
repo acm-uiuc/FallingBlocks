@@ -42,7 +42,7 @@ class UserShape {
     body = box2d.createBody(bd);
     //body.setLinearVelocity(new Vec2(random(-8, 8), random(2, 8)));
     //body.setAngularVelocity(random(-5, 5));
-    body.setLinearVelocity(new Vec2(0,0));
+    body.setLinearVelocity(new Vec2(0, 20));
     body.setAngularVelocity(0);
     MassData md = new MassData();
     body.getMassData(md);
@@ -58,6 +58,10 @@ class UserShape {
     fd.density = 1;
     fd.friction = 0.9901;
     fd.restitution = 0.3;
+    Filter filter = new Filter();
+    filter.categoryBits = USER_SHAPES;
+    filter.maskBits = FALLING_SHAPES + INTERACTION_SHAPES;
+    fd.filter = filter;
     // create the fixture from the shape's fixture def (deflect things based on the actual circle shape)
     body.createFixture(fd);
     

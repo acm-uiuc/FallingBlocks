@@ -13,6 +13,10 @@ import org.jbox2d.dynamics.*; // jbox2d
 import java.util.Collections;
 
 int MAX_SHAPES = 100;
+final static int USER_SHAPES = 1;
+final static int FALLING_SHAPES = 2;
+final static int USER_FIGURE_SHAPES = 4;
+final static int INTERACTION_SHAPES = 8;
 
 // declare SimpleOpenNI object
 SimpleOpenNI context;
@@ -87,7 +91,7 @@ void setup() {
     // setup box2d, create world, set gravity
     box2d = new PBox2D(this);
     box2d.createWorld();
-    box2d.setGravity(0, 20);
+    box2d.setGravity(0, -20);
     // set random colors (background, blob)
     setRandomColors(1);
   }
@@ -153,15 +157,17 @@ void draw() {
 
 void updateAndDrawBox2D() {
   // if frameRate is sufficient, add a polygon and a circle with a random radius
-  if (frameRate > 29 && polygons.size() < MAX_SHAPES) {
-    polygons.add(new CustomShape(kinectWidth/2, height+50, -1));
-    polygons.add(new CustomShape(kinectWidth/2, height+50, random(2.5, 20)));
+  if (polygons.size() < MAX_SHAPES) {
+    //polygons.add(new CustomShape(kinectWidth/2, height+50, -1));
+    //polygons.add(new CustomShape(kinectWidth/2, height+50, random(2.5, 20)));
+    polygons.add(new CustomShape(random(0, kinectWidth), -50, random(2.5, 20)));
+    polygons.add(new CustomShape(random(0, kinectWidth), -50, random(2.5, 20)));
   }
   int start = millis();
   // take one step in the box2d physics world
   box2d.step();
   int end = millis();
-  //println("time in box2d update: "+(end-start));
+  println("time in box2d update: "+(end-start));
 
   // center and reScale from Kinect to custom dimensions
   translate(0, (height-kinectHeight*reScale)/2);
@@ -187,7 +193,7 @@ void updateAndDrawBox2D() {
       cs.display();
     }
   }
-  //println("time in drawing other shapes: "+(millis()-start));
+  println("time in drawing other shapes: "+(millis()-start));
   
   
   start = millis();
@@ -204,7 +210,7 @@ void updateAndDrawBox2D() {
       cs.display();
     }
   }
-  //println("time in drawing polygons: "+(millis()-start));
+  println("time in drawing polygons: "+(millis()-start));
 
 
 }
@@ -255,8 +261,8 @@ void drawSkeleton(int userId)
   
   context.getJointPositionSkeleton(userId,SimpleOpenNI.SKEL_RIGHT_HAND,jointPos);
   context.convertRealWorldToProjective(jointPos, screenPos);
-  println(jointPos);
-  println(screenPos);
+  //println(jointPos);
+  //println(screenPos);
   fill(0,255, 0, 255);
   noStroke();
   ellipse(screenPos.x, screenPos.y, 10, 10);
