@@ -10,9 +10,12 @@ import pbox2d.*; // shiffman's jbox2d helper library
 import org.jbox2d.collision.shapes.*; // jbox2d
 import org.jbox2d.common.*; // jbox2d
 import org.jbox2d.dynamics.*; // jbox2d
+import org.jbox2d.dynamics.contacts.*;
 import java.util.Collections;
 
-int MAX_SHAPES = 100;
+//CONTACT LISTENER
+
+int MAX_SHAPES = 10;
 final static int USER_SHAPES = 1;
 final static int FALLING_SHAPES = 2;
 final static int USER_FIGURE_SHAPES = 4;
@@ -92,6 +95,7 @@ void setup() {
     box2d = new PBox2D(this);
     box2d.createWorld();
     box2d.setGravity(0, -20);
+    box2d.listenForCollisions();
     // set random colors (background, blob)
     setRandomColors(1);
   }
@@ -356,6 +360,11 @@ void onStartPose(String pose,int userId)
 void onEndPose(String pose,int userId)
 {
   println("onEndPose - userId: " + userId + ", pose: " + pose);
+}
+
+
+void beginContact(Contact c) {
+  println("Contact!"); 
 }
 
 
