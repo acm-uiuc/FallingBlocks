@@ -10,14 +10,18 @@ class CustomShape {
   color col;
   // radius (also used to distinguish between circles and polygons in this combi-class
   float r;
+  int id;
+  int count = 0;
+  int maxlife = 400;
 
-  CustomShape(float x, float y, float r) {
+  CustomShape(float x, float y, float r, int id) {
     if (r == -1) r = random(5,15);
     this.r = r;
     // create a body (polygon or circle based on the r)
     makeBody(x, y);
     // get a random color
-    col = getRandomColor();
+    col = colorPalette[id % colorPalette.length];
+    this.id = id;
   }
 
   void makeBody(float x, float y) {
@@ -27,7 +31,8 @@ class CustomShape {
     bd.type = BodyType.DYNAMIC;
     bd.position.set(box2d.coordPixelsToWorld(new Vec2(x, y)));
     body = box2d.createBody(bd);
-    body.setLinearVelocity(new Vec2(random(-8, 8), random(2, 8)));
+    body.m_userData = this;
+    //body.setLinearVelocity(new Vec2(random(-8, 8), random(2, 8)));
     body.setAngularVelocity(random(-5, 5));
     
     // depending on the r this combi-code creates either a box2d polygon or a circle
@@ -107,7 +112,10 @@ class CustomShape {
     translate(pos.x, pos.y);
     noStroke();
     // use the shape's custom color
-    fill(col);
+    float amount = float(maxlife-count)/maxlife;
+    fill(red(col), green(col), blue(col), 255*amount);
+    stroke(0, 0, 0, 255*float(maxlife-count)/maxlife);
+    strokeWeight(2);
     // depending on the r this combi-code displays either a polygon or a circle
     if (r == -1) {
       // rotate by the body's angle
@@ -118,6 +126,7 @@ class CustomShape {
       ellipse(0, 0, r*2, r*2);
     }
     popMatrix();
+    count += 1;
   }
 
   // if the shape moves off-screen, destroy the box2d body (important!)
@@ -125,7 +134,7 @@ class CustomShape {
   boolean done() {
     Vec2 posScreen = box2d.getBodyPixelCoord(body);
     boolean offscreen = posScreen.y > height;
-    if (offscreen) {
+    if (offscreen || count > maxlife) {
       box2d.destroyBody(body);
       return true;
     }

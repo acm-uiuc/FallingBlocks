@@ -11,11 +11,16 @@ import org.jbox2d.collision.shapes.*; // jbox2d
 import org.jbox2d.common.*; // jbox2d
 import org.jbox2d.dynamics.*; // jbox2d
 import org.jbox2d.dynamics.contacts.*;
+import org.jbox2d.collision.Manifold;
 import java.util.Collections;
+import oscP5.*; // osc
+import netP5.*; // osc
+
 
 //CONTACT LISTENER
 
-int MAX_SHAPES = 10;
+
+
 final static int USER_SHAPES = 1;
 final static int FALLING_SHAPES = 2;
 final static int USER_FIGURE_SHAPES = 4;
@@ -29,6 +34,11 @@ BlobDetection theBlobDetection;
 ToxiclibsSupport gfx;
 // declare custom PolygonBlob object (see class for more info)
 PolygonBlob poly;
+
+// osc interface
+OscP5 oscP5;
+// localhost - our connection to puredata
+NetAddress pdAddress;
 
 boolean autoCalib=true;
 
@@ -53,8 +63,8 @@ color[] colorPalette;
 
 // the main PBox2D object in which all the physics-based stuff is happening
 PBox2D box2d;
+MusicBallz musicbox = new MusicBallz();
 // list to hold all the custom shapes (circles, polygons)
-ArrayList<CustomShape> polygons = new ArrayList<CustomShape>();
 ArrayList<UserShape> userpolys = new ArrayList<UserShape>();
 
 void setup() {
@@ -99,10 +109,18 @@ void setup() {
     // set random colors (background, blob)
     setRandomColors(1);
   }
+  setupOSC();
+}
+
+void setupOSC() { 
+  // start oscP5, telling it to listen for incoming messages at port 5001 */
+  oscP5 = new OscP5(this,9124);
+  // set the remote location to be the localhost on port 5001
+  pdAddress = new NetAddress("127.0.0.1",9123);
 }
 
 void draw() {
-  background(bgColor);
+  background(#fafef0);
   // update the SimpleOpenNI object
   context.update();
   // put the image into a PImage
@@ -160,13 +178,7 @@ void draw() {
 }
 
 void updateAndDrawBox2D() {
-  // if frameRate is sufficient, add a polygon and a circle with a random radius
-  if (polygons.size() < MAX_SHAPES) {
-    //polygons.add(new CustomShape(kinectWidth/2, height+50, -1));
-    //polygons.add(new CustomShape(kinectWidth/2, height+50, random(2.5, 20)));
-    polygons.add(new CustomShape(random(0, kinectWidth), -50, random(2.5, 20)));
-    polygons.add(new CustomShape(random(0, kinectWidth), -50, random(2.5, 20)));
-  }
+  musicbox.update();
   int start = millis();
   // take one step in the box2d physics world
   box2d.step();
@@ -184,19 +196,8 @@ void updateAndDrawBox2D() {
 
 
   start = millis();
-  // display all the shapes (circles, polygons)
-  // go backwards to allow removal of shapes
-  for (int i=polygons.size()-1; i>=0; i--) {
-    CustomShape cs = polygons.get(i);
-    // if the shape is off-screen remove it (see class for more info)
-    if (cs.done()) {
-      polygons.remove(i);
-    // otherwise update (keep shape outside person) and display (circle or polygon)
-    } else {
-      cs.update();
-      cs.display();
-    }
-  }
+  musicbox.draw();
+  
   println("time in drawing other shapes: "+(millis()-start));
   
   
@@ -234,7 +235,6 @@ void setRandomColors(int nthFrame) {
     // set blob color to second color from palette
     blobColor = colorPalette[1];
     // set all shape colors randomly
-    for (CustomShape cs: polygons) { cs.col = getRandomColor(); }
   }
 }
 
@@ -365,6 +365,40 @@ void onEndPose(String pose,int userId)
 
 void beginContact(Contact c) {
   println("Contact!"); 
+  
+  Vec2 posBody1 = box2d.getBodyPixelCoord(c.getFixtureA().m_body);
+  Vec2 posBody2 = box2d.getBodyPixelCoord(c.getFixtureB().m_body);
+  
+  Object obj1 = c.getFixtureA().m_body.m_userData;
+  Object obj2 = c.getFixtureB().m_body.m_userData;
+  if (obj1 instanceof CustomShape) {
+    CustomShape shape = (CustomShape)obj1;
+    // create an osc message
+    OscMessage myMessage = new OscMessage("/collision");
+   
+    myMessage.add(shape.id); // add an int to the osc message
+    myMessage.add(c.getFixtureA().m_body.m_linearVelocity.length()); // add an int to the osc message
+    myMessage.add(posBody1.x); // add an int to the osc message
+    myMessage.add(posBody1.y); // add an int to the osc message
+   
+    // send the message
+    oscP5.send(myMessage, pdAddress); 
+  } 
+  if (obj2 instanceof CustomShape) {
+    CustomShape shape = (CustomShape)obj2;
+    // create an osc message
+    OscMessage myMessage = new OscMessage("/collision");
+   
+    myMessage.add(shape.id); // add an int to the osc message
+    myMessage.add(c.getFixtureB().m_body.m_linearVelocity.length()); // add an int to the osc message
+    myMessage.add(posBody2.x); // add an int to the osc message
+    myMessage.add(posBody2.y); // add an int to the osc message
+   
+    // send the message
+    oscP5.send(myMessage, pdAddress); 
+  }  
+
 }
+
 
 

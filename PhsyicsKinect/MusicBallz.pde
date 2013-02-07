@@ -1,0 +1,36 @@
+class MusicBallz {
+  ArrayList<CustomShape> polygons = new ArrayList<CustomShape>();
+  int MAX_SHAPES = 30;
+
+
+  
+  public void update() {
+    // if frameRate is sufficient, add a polygon and a circle with a random radius
+    if (frameCount % 100 == 0) {
+      int balls = 10;
+      float ballspacing = kinectWidth/(balls+2);
+      for (int i=0; i<balls; i++) {
+        if (polygons.size() < MAX_SHAPES) {
+          polygons.add(new CustomShape(ballspacing*(i+1), -50, 13, i));
+        }
+      }
+    }
+  }
+  
+  public void draw() {
+    // display all the shapes (circles, polygons)
+    // go backwards to allow removal of shapes
+    for (int i=polygons.size()-1; i>=0; i--) {
+      CustomShape cs = polygons.get(i);
+      // if the shape is off-screen remove it (see class for more info)
+      if (cs.done()) {
+        polygons.remove(i);
+      // otherwise update (keep shape outside person) and display (circle or polygon)
+      } else {
+        cs.update();
+        cs.display();
+      }
+    }
+  }
+  
+}
