@@ -369,6 +369,12 @@ void beginContact(Contact c) {
   Vec2 posBody1 = box2d.getBodyPixelCoord(c.getFixtureA().m_body);
   Vec2 posBody2 = box2d.getBodyPixelCoord(c.getFixtureB().m_body);
   
+  Vec2 velBody1 = c.getFixtureA().m_body.m_linearVelocity;
+  Vec2 velBody2 = c.getFixtureB().m_body.m_linearVelocity;
+  Vec2 velDiff = velBody1.sub(velBody2);
+  
+  if (velDiff.length() < 0.01f) return; // no point here.
+  
   Object obj1 = c.getFixtureA().m_body.m_userData;
   Object obj2 = c.getFixtureB().m_body.m_userData;
   if (obj1 instanceof CustomShape) {
@@ -377,7 +383,7 @@ void beginContact(Contact c) {
     OscMessage myMessage = new OscMessage("/collision");
    
     myMessage.add(shape.id); // add an int to the osc message
-    myMessage.add(c.getFixtureA().m_body.m_linearVelocity.length()); // add an int to the osc message
+    myMessage.add(velDiff.length()); // add an int to the osc message
     myMessage.add(posBody1.x); // add an int to the osc message
     myMessage.add(posBody1.y); // add an int to the osc message
    
@@ -390,7 +396,7 @@ void beginContact(Contact c) {
     OscMessage myMessage = new OscMessage("/collision");
    
     myMessage.add(shape.id); // add an int to the osc message
-    myMessage.add(c.getFixtureB().m_body.m_linearVelocity.length()); // add an int to the osc message
+    myMessage.add(velDiff.length()); // add an int to the osc message
     myMessage.add(posBody2.x); // add an int to the osc message
     myMessage.add(posBody2.y); // add an int to the osc message
    
