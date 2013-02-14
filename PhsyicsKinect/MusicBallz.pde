@@ -1,17 +1,18 @@
 class MusicBallz {
   ArrayList<CustomShape> polygons = new ArrayList<CustomShape>();
   int MAX_SHAPES = 30;
-
+  int rownum = -1;
 
   
   public void update() {
     // if frameRate is sufficient, add a polygon and a circle with a random radius
     if (frameCount % 100 == 0) {
-      int balls = 10;
+      int balls = 7;
+      rownum += 1;
       float ballspacing = kinectWidth/(balls+2);
       for (int i=0; i<balls; i++) {
         if (polygons.size() < MAX_SHAPES) {
-          polygons.add(new CustomShape(ballspacing*(i+1), -50, 13, i));
+          polygons.add(new CustomShape(ballspacing*(i+1), -50, 13, i, rownum));
         }
       }
     }
