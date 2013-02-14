@@ -114,6 +114,7 @@ class CustomShape {
     noStroke();
     // use the shape's custom color
     float amount = float(maxlife-count)/maxlife;
+    amount = amount/1.6f;
     fill(red(col), green(col), blue(col), 255*amount);
     //stroke(0, 0, 0, 255*float(maxlife-count)/maxlife);
     //strokeWeight(2);
@@ -128,10 +129,10 @@ class CustomShape {
     }
     
     float pulseamount = float(frameCount-hitframe);
-    float pulsealpha = 255*(3/pulseamount);
-    if (pulsealpha > 10f) {
-      fill(red(col), green(col), blue(col), pulsealpha);
-      float pulseradius = r*2*(1+pulseamount/30);
+    if (pulseamount < 20f) {
+      float pulsealpha = min(255,255*(2.1f/pulseamount));
+      fill(red(col), green(col), blue(col), pulsealpha*amount);
+      float pulseradius = r*2*(1+pulseamount/10);
       ellipse(0, 0, pulseradius, pulseradius);
     }
       

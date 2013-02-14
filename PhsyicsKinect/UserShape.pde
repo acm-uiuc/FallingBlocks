@@ -1,6 +1,19 @@
 // usually one would probably make a generic Shape class and subclass different types (circle, polygon), but that
 // would mean at least 3 instead of 1 class, so for this tutorial it's a combi-class CustomShape for all types of shapes
 // to save some space and keep the code as concise as possible I took a few shortcuts to prevent repeating the same code
+
+
+color[] usercolors = {
+  #ff2288,
+  #22ff88,
+  #88ff22,
+  #ff8822,
+  #88ff22,
+  #2288ff,
+};
+
+
+
 class UserShape {
   // to hold the box2d body
   Body body;
@@ -18,19 +31,7 @@ class UserShape {
     makeBody(x, y);
     // get a random color
     this.type = type;
-    if (type == 1) {
-      col = #ff2288;
-    } else if (type == 2) {
-      col = #22ff88;
-    } else if (type == 3) {
-      col = #8822ff; 
-    } else if (type == 4) {
-      col = #ff8822;
-    } else if (type == 5) {
-      col = #88ff22;
-    } else if (type == 6) {
-      col = #2288ff;
-    }
+    col = usercolors[type%usercolors.length];
   }
 
   void makeBody(float x, float y) {
@@ -105,7 +106,7 @@ class UserShape {
     // get the pixel coordinates of the body
     Vec2 pos = box2d.getBodyPixelCoord(body);
     noStroke();
-    fill(red(col),green(col),blue(col),255 - framecount * 255/lifetime);
+    fill(red(col),green(col),blue(col),150 - framecount * 150/lifetime);
     // depending on the r this combi-code displays either a polygon or a circle
     ellipse(pos.x, pos.y, r*2, r*2);
   }

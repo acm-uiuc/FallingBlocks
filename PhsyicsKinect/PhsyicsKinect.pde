@@ -388,7 +388,7 @@ void beginContact(Contact c) {
   Vec2 velBody2 = c.getFixtureB().m_body.m_linearVelocity;
   Vec2 velDiff = velBody1.sub(velBody2);
   
-  if (velDiff.length() < 0.01f) return; // no point here.
+  if (velDiff.length() < 15.01f) return; // no point here.
   
   Object obj1 = c.getFixtureA().m_body.m_userData;
   Object obj2 = c.getFixtureB().m_body.m_userData;
@@ -410,7 +410,7 @@ void beginContact(Contact c) {
     CustomShape shape = (CustomShape)obj2;
     shape.hitframe = frameCount;
     // create an osc message
-    OscMessage myMessage = new OscMessage("/collision");
+    OscMessage myMessage = new OscMessage("/collision"); // "/collision 3 1.3 302, 400"
    
     myMessage.add(shape.id); // add an int to the osc message
     myMessage.add(velDiff.length()); // add an int to the osc message
