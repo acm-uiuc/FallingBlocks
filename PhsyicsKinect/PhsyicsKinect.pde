@@ -119,8 +119,23 @@ void setupOSC() {
   pdAddress = new NetAddress("127.0.0.1",9123);
 }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 void draw() {
-  background(#fafef0);
+  background(0);
   // update the SimpleOpenNI object
   context.update();
   // put the image into a PImage
@@ -379,6 +394,7 @@ void beginContact(Contact c) {
   Object obj2 = c.getFixtureB().m_body.m_userData;
   if (obj1 instanceof CustomShape) {
     CustomShape shape = (CustomShape)obj1;
+    shape.hitframe = frameCount;
     // create an osc message
     OscMessage myMessage = new OscMessage("/collision");
    
@@ -392,6 +408,7 @@ void beginContact(Contact c) {
   } 
   if (obj2 instanceof CustomShape) {
     CustomShape shape = (CustomShape)obj2;
+    shape.hitframe = frameCount;
     // create an osc message
     OscMessage myMessage = new OscMessage("/collision");
    

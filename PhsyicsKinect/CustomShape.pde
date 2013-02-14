@@ -13,6 +13,7 @@ class CustomShape {
   int id;
   int count = 0;
   int maxlife = 400;
+  int hitframe = -1;
 
   CustomShape(float x, float y, float r, int id) {
     if (r == -1) r = random(5,15);
@@ -114,8 +115,8 @@ class CustomShape {
     // use the shape's custom color
     float amount = float(maxlife-count)/maxlife;
     fill(red(col), green(col), blue(col), 255*amount);
-    stroke(0, 0, 0, 255*float(maxlife-count)/maxlife);
-    strokeWeight(2);
+    //stroke(0, 0, 0, 255*float(maxlife-count)/maxlife);
+    //strokeWeight(2);
     // depending on the r this combi-code displays either a polygon or a circle
     if (r == -1) {
       // rotate by the body's angle
@@ -125,6 +126,15 @@ class CustomShape {
     } else {
       ellipse(0, 0, r*2, r*2);
     }
+    
+    float pulseamount = float(frameCount-hitframe);
+    float pulsealpha = 255*(3/pulseamount);
+    if (pulsealpha > 10f) {
+      fill(red(col), green(col), blue(col), pulsealpha);
+      float pulseradius = r*2*(1+pulseamount/30);
+      ellipse(0, 0, pulseradius, pulseradius);
+    }
+      
     popMatrix();
     count += 1;
   }
