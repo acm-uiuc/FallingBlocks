@@ -107,7 +107,7 @@ void setup() {
     // setup box2d, create world, set gravity
     box2d = new PBox2D(this);
     box2d.createWorld();
-    box2d.setGravity(0, -20);
+    box2d.setGravity(0, -35);
     box2d.listenForCollisions();
     // set random colors (background, blob)
     setRandomColors(1);
@@ -192,7 +192,8 @@ void draw() {
   {
     if(context.isTrackingSkeleton(userList[i]))
       drawSkeleton(userList[i]);
-  }    
+  }   
+ sendFrame(); 
 }
 
 void updateAndDrawBox2D() {
@@ -380,6 +381,14 @@ void onEndPose(String pose,int userId)
 }
 
 
+void sendFrame() {
+    OscMessage myMessage = new OscMessage("/frame");
+   
+    myMessage.add(frameCount); // add an int to the osc message   
+    // send the message
+    oscP5.send(myMessage, pdAddress); 
+}
+
 void beginContact(Contact c) {
   println("Contact!"); 
   
@@ -390,7 +399,7 @@ void beginContact(Contact c) {
   Vec2 velBody2 = c.getFixtureB().m_body.m_linearVelocity;
   Vec2 velDiff = velBody1.sub(velBody2);
   
-  if (velDiff.length() < 0.01f) return; // no point here.
+  if (velDiff.length() < 15.01f) return; // no point here.
   
   Object obj1 = c.getFixtureA().m_body.m_userData;
   Object obj2 = c.getFixtureB().m_body.m_userData;
@@ -402,6 +411,7 @@ void beginContact(Contact c) {
    
     myMessage.add(shape.id); // add an int to the osc message
     myMessage.add(velDiff.length()); // add an int to the osc message
+    myMessage.add(shape.groupid); // add an int to the osc message
     myMessage.add(posBody1.x); // add an int to the osc message
     myMessage.add(posBody1.y); // add an int to the osc message
    
@@ -412,10 +422,11 @@ void beginContact(Contact c) {
     CustomShape shape = (CustomShape)obj2;
     shape.hitframe = frameCount;
     // create an osc message
-    OscMessage myMessage = new OscMessage("/collision");
+    OscMessage myMessage = new OscMessage("/collision"); // "/collision 3 1.3 302, 400"
    
     myMessage.add(shape.id); // add an int to the osc message
     myMessage.add(velDiff.length()); // add an int to the osc message
+    myMessage.add(shape.groupid); // add an int to the osc message
     myMessage.add(posBody2.x); // add an int to the osc message
     myMessage.add(posBody2.y); // add an int to the osc message
    

@@ -1,6 +1,39 @@
 // usually one would probably make a generic Shape class and subclass different types (circle, polygon), but that
 // would mean at least 3 instead of 1 class, so for this tutorial it's a combi-class CustomShape for all types of shapes
 // to save some space and keep the code as concise as possible I took a few shortcuts to prevent repeating the same code
+
+
+color[][] shapecolors = {
+{
+  #93D6D6,
+  #73B6B6,
+  #53A6A6,
+  #538686,
+  #53A6A6,
+  #73B6B6,
+  #93D6D6,
+},
+{
+  #D693D6,
+  #B673B6,
+  #A653A6,
+  #865386,
+  #A653A6,
+  #B673B6,
+  #D693D6,
+},
+{
+  #D6D693,
+  #B6B673,
+  #A6A653,
+  #868653,
+  #A6A653,
+  #B6B673,
+  #D6D693,
+},
+
+};
+
 class CustomShape {
   // to hold the box2d body
   Body body;
@@ -11,18 +44,21 @@ class CustomShape {
   // radius (also used to distinguish between circles and polygons in this combi-class
   float r;
   int id;
+  int groupid;
   int count = 0;
   int maxlife = 400;
   int hitframe = -1;
 
-  CustomShape(float x, float y, float r, int id) {
+  CustomShape(float x, float y, float r, int id, int groupid) {
     if (r == -1) r = random(5,15);
     this.r = r;
     // create a body (polygon or circle based on the r)
     makeBody(x, y);
     // get a random color
-    col = colorPalette[id % colorPalette.length];
+    int colorgroup = groupid % shapecolors.length;
+    col = shapecolors[colorgroup][id % shapecolors[colorgroup].length];
     this.id = id;
+    this.groupid = groupid;
   }
 
   void makeBody(float x, float y) {
@@ -114,6 +150,7 @@ class CustomShape {
     noStroke();
     // use the shape's custom color
     float amount = float(maxlife-count)/maxlife;
+    amount = amount/1.6f;
     fill(red(col), green(col), blue(col), 255*amount);
     //stroke(0, 0, 0, 255*float(maxlife-count)/maxlife);
     //strokeWeight(2);
@@ -128,10 +165,10 @@ class CustomShape {
     }
     
     float pulseamount = float(frameCount-hitframe);
-    float pulsealpha = 255*(3/pulseamount);
-    if (pulsealpha > 10f) {
-      fill(red(col), green(col), blue(col), pulsealpha);
-      float pulseradius = r*2*(1+pulseamount/30);
+    if (pulseamount < 20f) {
+      float pulsealpha = min(255,255*(2.1f/pulseamount));
+      fill(red(col), green(col), blue(col), pulsealpha*amount);
+      float pulseradius = r*2*(1+pulseamount/10);
       ellipse(0, 0, pulseradius, pulseradius);
     }
       
