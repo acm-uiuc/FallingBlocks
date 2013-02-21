@@ -35,6 +35,8 @@ ToxiclibsSupport gfx;
 // declare custom PolygonBlob object (see class for more info)
 PolygonBlob poly;
 
+PhysicsSkeleton physicsSkeleton;
+
 // osc interface
 OscP5 oscP5;
 // localhost - our connection to puredata
@@ -78,6 +80,7 @@ void setup() {
   //context.enableRGB();
   context.enableScene();
   context.enableUser(SimpleOpenNI.SKEL_PROFILE_ALL);
+  physicsSkeleton = new PhysicsSkeleton();
   println("Done with skeletal tracking");
 
   // initialize SimpleOpenNI object
@@ -286,7 +289,6 @@ void drawSkeleton(int userId)
   fill(0,255, 0, 255);
   noStroke();
   ellipse(screenPos.x, screenPos.y, 10, 10);
-
 
   
   context.drawLimb(userId, SimpleOpenNI.SKEL_HEAD, SimpleOpenNI.SKEL_NECK);
