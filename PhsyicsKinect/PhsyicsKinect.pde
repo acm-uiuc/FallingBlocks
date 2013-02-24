@@ -35,8 +35,6 @@ ToxiclibsSupport gfx;
 // declare custom PolygonBlob object (see class for more info)
 PolygonBlob poly;
 
-PhysicsSkeleton physicsSkeleton;
-
 // osc interface
 OscP5 oscP5;
 // localhost - our connection to puredata
@@ -80,7 +78,6 @@ void setup() {
   //context.enableRGB();
   context.enableScene();
   context.enableUser(SimpleOpenNI.SKEL_PROFILE_ALL);
-  physicsSkeleton = new PhysicsSkeleton();
   println("Done with skeletal tracking");
 
   // initialize SimpleOpenNI object
@@ -290,6 +287,7 @@ void drawSkeleton(int userId)
   noStroke();
   ellipse(screenPos.x, screenPos.y, 10, 10);
 
+
   
   context.drawLimb(userId, SimpleOpenNI.SKEL_HEAD, SimpleOpenNI.SKEL_NECK);
 
@@ -326,22 +324,36 @@ void onNewUser(int userId)
     context.requestCalibrationSkeleton(userId,true);
   else    
     context.startPoseDetection("Psi",userId);
+    
+    
+  
+  OscMessage myMessage = new OscMessage("/user/entered");
+  myMessage.add(userId);  
+  sendMessage(myMessage); 
 }
 
 void onLostUser(int userId)
 {
   println("onLostUser - userId: " + userId);
+  OscMessage myMessage = new OscMessage("/user/lost");
+  myMessage.add(userId);  
+  sendMessage(myMessage); 
+
 }
 
 void onExitUser(int userId)
 {
   println("onExitUser - userId: " + userId);
-}
+  OscMessage myMessage = new OscMessage("/user/exit");
+  myMessage.add(userId);  
+  sendMessage(myMessage); }
 
 void onReEnterUser(int userId)
 {
   println("onReEnterUser - userId: " + userId);
-}
+  OscMessage myMessage = new OscMessage("/user/reenter");
+  myMessage.add(userId);  
+  sendMessage(myMessage); }
 
 void onStartCalibration(int userId)
 {
@@ -386,8 +398,14 @@ void sendFrame() {
    
     myMessage.add(frameCount); // add an int to the osc message   
     // send the message
-    oscP5.send(myMessage, pdAddress); 
+    sendMessage(myMessage); 
 }
+
+void sendMessage(OscMessage message) {
+  oscP5.send(message, pdAddress);
+}
+
+
 
 void beginContact(Contact c) {
   println("Contact!"); 
@@ -416,7 +434,7 @@ void beginContact(Contact c) {
     myMessage.add(posBody1.y); // add an int to the osc message
    
     // send the message
-    oscP5.send(myMessage, pdAddress); 
+    sendMessage(myMessage); 
   } 
   if (obj2 instanceof CustomShape) {
     CustomShape shape = (CustomShape)obj2;
@@ -431,7 +449,7 @@ void beginContact(Contact c) {
     myMessage.add(posBody2.y); // add an int to the osc message
    
     // send the message
-    oscP5.send(myMessage, pdAddress); 
+    sendMessage(myMessage); 
   }  
 
 }
