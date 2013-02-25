@@ -1,0 +1,19 @@
+#N canvas 1060 25 450 300 10;
+#X obj 78 8 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144 -1
+-1;
+#X msg 43 48 60;
+#X msg 71 69 100;
+#X obj 66 207 dac~;
+#X msg 100 71 0.3;
+#X obj 43 120 melloSynth;
+#X text 199 122;
+#X text 198 57 Parameters(From left to right): Midi Value [0 \, 127]
+Velocity [0 \, 100] Harmonicity-Env [0 \, 0.9];
+#X connect 0 0 1 0;
+#X connect 0 0 2 0;
+#X connect 0 0 4 0;
+#X connect 1 0 5 0;
+#X connect 2 0 5 1;
+#X connect 4 0 5 2;
+#X connect 5 0 3 0;
+#X connect 5 1 3 1;
