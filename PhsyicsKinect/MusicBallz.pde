@@ -5,8 +5,7 @@ class MusicBallz {
 
   
   public void update() {
-    // if frameRate is sufficient, add a polygon and a circle with a random radius
-    if (frameCount % 100 == 0) {
+    if (counter.frame == 0 && counter.beat == 0) {
       int balls = 7;
       rownum += 1;
       float ballspacing = kinectWidth/(balls+2);
@@ -18,6 +17,12 @@ class MusicBallz {
     }
   }
   
+  
+  
+  
+  
+  
+    
   public void draw() {
     // display all the shapes (circles, polygons)
     // go backwards to allow removal of shapes

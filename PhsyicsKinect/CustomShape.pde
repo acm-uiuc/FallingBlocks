@@ -48,17 +48,19 @@ class CustomShape {
   int count = 0;
   int maxlife = 400;
   int hitframe = -1;
+  final static boolean notcircle = true;
 
   CustomShape(float x, float y, float r, int id, int groupid) {
     if (r == -1) r = random(5,15);
     this.r = r;
     // create a body (polygon or circle based on the r)
-    makeBody(x, y);
     // get a random color
     int colorgroup = groupid % shapecolors.length;
     col = shapecolors[colorgroup][id % shapecolors[colorgroup].length];
     this.id = id;
     this.groupid = groupid;
+    
+    makeBody(x, y);
   }
 
   void makeBody(float x, float y) {
@@ -72,12 +74,24 @@ class CustomShape {
     //body.setLinearVelocity(new Vec2(random(-8, 8), random(2, 8)));
     body.setAngularVelocity(random(-5, 5));
     
+    
+    
+    FixtureDef fd = new FixtureDef();
+    fd.density = 1;
+    fd.friction = 0.9901;
+    fd.restitution = 0.3;
+    Filter filter = new Filter();
+    filter.categoryBits = FALLING_SHAPES;
+    filter.maskBits = USER_SHAPES+FALLING_SHAPES+USER_FIGURE_SHAPES+INTERACTION_SHAPES;
+    fd.filter = filter;
+
+    
     // depending on the r this combi-code creates either a box2d polygon or a circle
-    if (r == -1) {
+    if (notcircle) {
       // box2d polygon shape
       PolygonShape sd = new PolygonShape();
       // toxiclibs polygon creator (triangle, square, etc)
-      toxiPoly = new Circle(random(5, 20)).toPolygon2D(int(random(3, 6)));
+      toxiPoly = new Circle(r).toPolygon2D( groupid % 3 + 3 );
       // place the toxiclibs polygon's vertices into a vec2d array
       Vec2[] vertices = new Vec2[toxiPoly.getNumPoints()];
       for (int i=0; i<vertices.length; i++) {
@@ -86,22 +100,15 @@ class CustomShape {
       }
       // put the vertices into the box2d shape
       sd.set(vertices, vertices.length);
+      fd.shape = sd;
       // create the fixture from the shape (deflect things based on the actual polygon shape)
-      body.createFixture(sd, 1);
+      body.createFixture(fd);
     } else {
       // box2d circle shape of radius r
       CircleShape cs = new CircleShape();
       cs.m_radius = box2d.scalarPixelsToWorld(r);
-      // tweak the circle's fixture def a little bit
-      FixtureDef fd = new FixtureDef();
       fd.shape = cs;
-      fd.density = 1;
-      fd.friction = 0.9901;
-      fd.restitution = 0.3;
-      Filter filter = new Filter();
-      filter.categoryBits = FALLING_SHAPES;
-      filter.maskBits = USER_SHAPES+FALLING_SHAPES+USER_FIGURE_SHAPES+INTERACTION_SHAPES;
-      fd.filter = filter;
+      // tweak the circle's fixture def a little bit
 
       // create the fixture from the shape's fixture def (deflect things based on the actual circle shape)
       body.createFixture(fd);
@@ -155,7 +162,7 @@ class CustomShape {
     //stroke(0, 0, 0, 255*float(maxlife-count)/maxlife);
     //strokeWeight(2);
     // depending on the r this combi-code displays either a polygon or a circle
-    if (r == -1) {
+    if (notcircle) {
       // rotate by the body's angle
       float a = body.getAngle();
       rotate(-a); // minus!

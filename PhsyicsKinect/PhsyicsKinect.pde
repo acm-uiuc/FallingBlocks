@@ -64,12 +64,14 @@ color[] colorPalette;
 // the main PBox2D object in which all the physics-based stuff is happening
 PBox2D box2d;
 MusicBallz musicbox = new MusicBallz();
+UserManager usermanager = new UserManager();
 // list to hold all the custom shapes (circles, polygons)
 ArrayList<UserShape> userpolys = new ArrayList<UserShape>();
 
 void setup() {
   // it's possible to customize this, for example 1920x1080
   size(1280, 720, OPENGL);
+  frameRate(30);
   context = new SimpleOpenNI(this);
   
   // enable skeleton generation for all joints
@@ -138,10 +140,9 @@ void draw() {
   background(0);
   // update the SimpleOpenNI object
   context.update();
+  counter.update();
+
   // put the image into a PImage
-  cam = context.sceneImage().get();
-  int[] map = context.sceneMap();
-  int[] depth = context.depthMap();
 //  for (int y=0; y<kinectHeight; y+=3) {
 //    for (int x=0; x<kinectWidth; x+=3) {
 //      if (noise(x,y) > 0.9) {
@@ -151,19 +152,6 @@ void draw() {
 //      }
 //    }
 //  }
-  if (frameCount % 1 == 0) {
-    for (int i=0; i<200; i++) {
-      int x = int(random(0, kinectWidth));
-      int y = int(random(0, kinectHeight));
-      int loc = x+y*kinectWidth;
-      if (map[loc] != 0 && userpolys.size() < 500) {
-        float size = 20-depth[loc]/250;
-        float randomsize = random(10,20);
-        
-        userpolys.add(new UserShape(x, y, size, map[loc]));
-      }
-    }
-  }
   // copy the image into the smaller blob image
   //blobs.copy(cam, 0, 0, cam.width, cam.height, 0, 0, blobs.width, blobs.height);
   // blur the blob image
@@ -195,6 +183,7 @@ void draw() {
 
 void updateAndDrawBox2D() {
   musicbox.update();
+  usermanager.update();
   int start = millis();
   // take one step in the box2d physics world
   box2d.step();
@@ -214,27 +203,17 @@ void updateAndDrawBox2D() {
   start = millis();
   musicbox.draw();
   
-  println("time in drawing other shapes: "+(millis()-start));
+  //println("time in drawing other shapes: "+(millis()-start));
   
   
-  start = millis();
-  // display all the shapes (circles, polygons)
-  // go backwards to allow removal of shapes
-  for (int i=userpolys.size()-1; i>=0; i--) {
-    UserShape cs = userpolys.get(i);
-    // if the shape is off-screen remove it (see class for more info)
-    if (cs.done()) {
-      userpolys.remove(i);
-    // otherwise update (keep shape outside person) and display (circle or polygon)
-    } else {
-      cs.update();
-      cs.display();
-    }
-  }
-  println("time in drawing polygons: "+(millis()-start));
-
+  usermanager.draw();
 
 }
+
+
+
+
+
 
 // sets the colors every nth frame
 void setRandomColors(int nthFrame) {
@@ -255,9 +234,9 @@ void setRandomColors(int nthFrame) {
 }
 
 // returns a random color from the palette (excluding first aka background color)
-color getRandomColor() {
-  return colorPalette[int(random(1, colorPalette.length))];
-}
+//color getRandomColor() {
+//  return colorPalette[int(random(1, colorPalette.length))];
+//}
 
 
 // draw the skeleton with the selected joints
@@ -325,6 +304,7 @@ void onNewUser(int userId)
   else    
     context.startPoseDetection("Psi",userId);
     
+  usermanager.newUser(userId);
     
   
   OscMessage myMessage = new OscMessage("/user/entered");
@@ -335,6 +315,8 @@ void onNewUser(int userId)
 void onLostUser(int userId)
 {
   println("onLostUser - userId: " + userId);
+  usermanager.lostUser(userId);
+  
   OscMessage myMessage = new OscMessage("/user/lost");
   myMessage.add(userId);  
   sendMessage(myMessage); 
@@ -344,6 +326,9 @@ void onLostUser(int userId)
 void onExitUser(int userId)
 {
   println("onExitUser - userId: " + userId);
+  usermanager.exitUser(userId);
+
+  
   OscMessage myMessage = new OscMessage("/user/exit");
   myMessage.add(userId);  
   sendMessage(myMessage); }
@@ -351,6 +336,8 @@ void onExitUser(int userId)
 void onReEnterUser(int userId)
 {
   println("onReEnterUser - userId: " + userId);
+  usermanager.reenterUser(userId);
+  
   OscMessage myMessage = new OscMessage("/user/reenter");
   myMessage.add(userId);  
   sendMessage(myMessage); }

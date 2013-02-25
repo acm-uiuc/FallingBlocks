@@ -17,6 +17,9 @@ color[] usercolors = {
 class UserShape {
   // to hold the box2d body
   Body body;
+  boolean dead = false;
+  
+  Vec2 pos;
   // to hold the Toxiclibs polygon shape
   color col;
   // radius (also used to distinguish between circles and polygons in this combi-class
@@ -24,13 +27,15 @@ class UserShape {
   int framecount = 0;
   int type = 0;
   int lifetime = 10;
+  UserInfo user;
 
-  UserShape(float x, float y, float r, int type) {
+  UserShape(float x, float y, float r, int type, UserInfo user) {
     this.r = r;
+    this.user = user;
+    this.type = type;
     // create a body (polygon or circle based on the r)
     makeBody(x, y);
     // get a random color
-    this.type = type;
     col = usercolors[type%usercolors.length];
   }
 
@@ -104,18 +109,28 @@ class UserShape {
   void display() {
     framecount += 1;
     // get the pixel coordinates of the body
-    Vec2 pos = box2d.getBodyPixelCoord(body);
+    if (!dead) pos = box2d.getBodyPixelCoord(body);
+    float alpha = 150 - framecount * 150/lifetime;
     noStroke();
-    fill(red(col),green(col),blue(col),150 - framecount * 150/lifetime);
+    fill(red(col),green(col),blue(col), alpha / 2);
     // depending on the r this combi-code displays either a polygon or a circle
-    ellipse(pos.x, pos.y, r*2, r*2);
+    float newr = r;
+    ellipse(pos.x, pos.y, newr*2, newr*2);
+    //if (user != null) newr = newr * (1 + (Math.abs(((pos.x - user.lowx) / width + counter.measurearc))-0.5)*2.0 ) ;
+    newr = newr * 1+counter.measurearc*0.5;
+    fill(red(col),green(col),blue(col), alpha / 2);
+    ellipse(pos.x, pos.y, newr*2, newr*2);
+    
   }
 
   // if the shape moves off-screen, destroy the box2d body (important!)
   // and return true (which will lead to the removal of this CustomShape object)
   boolean done() {
-    if (framecount > lifetime) {
+    if (framecount > lifetime/2 && dead == false) {
       box2d.destroyBody(body);
+      dead = true;
+      return false;
+    } else  if (framecount > lifetime) {
       return true;
     }
     return false;
