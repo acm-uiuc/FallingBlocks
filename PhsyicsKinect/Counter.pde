@@ -19,8 +19,9 @@ class Counter {
     beat = (frameCount / framesPerBeat) % beatsPerMeasure;
     measure = (frameCount / (framesPerBeat*beatsPerMeasure)) % measuresPerPhrase;
     phrase = frameCount / (framesPerBeat*beatsPerMeasure*measuresPerPhrase);
-    measureprogress =  float(frame + beat*framesPerBeat) / (framesPerBeat*beatsPerMeasure);
+    measureprogress =  float(frame + beat*framesPerBeat) / float(framesPerBeat*beatsPerMeasure);
     measurearc = abs(measureprogress - 0.5)*2.0;
+    //println("Measure arc: "+measurearc);
   }
   
 }

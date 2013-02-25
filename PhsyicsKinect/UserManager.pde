@@ -1,19 +1,11 @@
-int kinectXYtoIndex(int x, int y) {
-  return x+y*kinectWidth;
-}
-
-boolean isValidIndex(float x, float y) {
-  return (x >= 0 && x < kinectWidth && y >= 0 && y < kinectHeight); 
-}
-int kinectXYtoIndex(float x, float y) {
-  return int(x)+int(y)*kinectWidth;
-}
+final static int MAX_CIRCLES = 1000;
 
 
 
 
 class UserManager {
   HashMap<Integer, UserInfo> usermap = new HashMap<Integer, UserInfo>();
+  ArrayList<UserShape> userpolys = new ArrayList<UserShape>();
 
   public void update() {
     for (UserInfo info : usermap.values()) {
@@ -26,12 +18,13 @@ class UserManager {
     int[] map = context.sceneMap();
     int[] depth = context.depthMap();
     if (frameCount % 1 == 0) {
-      for (int i=0; i<200; i++) {
+      for (int i=0; i<400; i++) {
         int x = int(random(0, kinectWidth));
         int y = int(random(0, kinectHeight));
         int loc = kinectXYtoIndex(x,y);
-        if (map[loc] != 0 && userpolys.size() < 500) {
+        if (map[loc] != 0 && userpolys.size() < MAX_CIRCLES) {
           float size = 20-depth[loc]/250;
+          size = min(10, size);
           float randomsize = random(10,20);
           
           userpolys.add(new UserShape(x, y, size, map[loc], scenetouser.get(map[loc])));
@@ -170,4 +163,29 @@ class UserInfo {
   }
 
   
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+int kinectXYtoIndex(int x, int y) {
+  return x+y*kinectWidth;
+}
+
+boolean isValidIndex(float x, float y) {
+  return (x >= 0 && x < kinectWidth && y >= 0 && y < kinectHeight); 
+}
+int kinectXYtoIndex(float x, float y) {
+  return int(x)+int(y)*kinectWidth;
 }

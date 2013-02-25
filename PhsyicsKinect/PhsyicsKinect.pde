@@ -66,7 +66,6 @@ PBox2D box2d;
 MusicBallz musicbox = new MusicBallz();
 UserManager usermanager = new UserManager();
 // list to hold all the custom shapes (circles, polygons)
-ArrayList<UserShape> userpolys = new ArrayList<UserShape>();
 
 void setup() {
   // it's possible to customize this, for example 1920x1080
@@ -109,7 +108,6 @@ void setup() {
     box2d.setGravity(0, -35);
     box2d.listenForCollisions();
     // set random colors (background, blob)
-    setRandomColors(1);
   }
   setupOSC();
 }
@@ -141,44 +139,9 @@ void draw() {
   // update the SimpleOpenNI object
   context.update();
   counter.update();
-
-  // put the image into a PImage
-//  for (int y=0; y<kinectHeight; y+=3) {
-//    for (int x=0; x<kinectWidth; x+=3) {
-//      if (noise(x,y) > 0.9) {
-//        if (map[x+y*kinectWidth] != 0 && userpolys.size() < 1000) {
-//          userpolys.add(new UserShape(x, y, 10));
-//        }
-//      }
-//    }
-//  }
-  // copy the image into the smaller blob image
-  //blobs.copy(cam, 0, 0, cam.width, cam.height, 0, 0, blobs.width, blobs.height);
-  // blur the blob image
-  //blobs.filter(BLUR, 1);
-  // detect the blobs
-  //theBlobDetection.computeBlobs(blobs.pixels);
-  // initialize a new polygon
-  //poly = new PolygonBlob();
-  // create the polygon from the blobs (custom functionality, see class)
-  //poly.createPolygon();
-  // create the box2d body from the polygon
-  //poly.createBody();
-  // update and draw everything (see method)
   updateAndDrawBox2D();
-  // destroy the person's body (important!)
-  //poly.destroyBody();
-  // set the colors randomly every 240th frame
-  //setRandomColors(240);
-  //*/
-    // draw the skeleton if it's available
-  int[] userList = context.getUsers();
-  for(int i=0;i<userList.length;i++)
-  {
-    if(context.isTrackingSkeleton(userList[i]))
-      drawSkeleton(userList[i]);
-  }   
- sendFrame(); 
+
+  sendFrame(); 
 }
 
 void updateAndDrawBox2D() {
@@ -212,83 +175,6 @@ void updateAndDrawBox2D() {
 
 
 
-
-
-
-// sets the colors every nth frame
-void setRandomColors(int nthFrame) {
-  if (frameCount % nthFrame == 0) {
-    // turn a palette into a series of strings
-    String[] paletteStrings = split(palettes[int(random(palettes.length))], ",");
-    // turn strings into colors
-    colorPalette = new color[paletteStrings.length];
-    for (int i=0; i<paletteStrings.length; i++) {
-      colorPalette[i] = int(paletteStrings[i]);
-    }
-    // set background color to first color from palette
-    bgColor = colorPalette[0];
-    // set blob color to second color from palette
-    blobColor = colorPalette[1];
-    // set all shape colors randomly
-  }
-}
-
-// returns a random color from the palette (excluding first aka background color)
-//color getRandomColor() {
-//  return colorPalette[int(random(1, colorPalette.length))];
-//}
-
-
-// draw the skeleton with the selected joints
-void drawSkeleton(int userId)
-{
-  // to get the 3d joint data
-  /*
-  PVector jointPos = new PVector();
-  context.getJointPositionSkeleton(userId,SimpleOpenNI.SKEL_NECK,jointPos);
-  println(jointPos);
-  */
-  
-  PVector jointPos = new PVector();
-  PVector screenPos = new PVector();
-  context.getJointPositionSkeleton(userId,SimpleOpenNI.SKEL_LEFT_HAND,jointPos);
-  context.convertRealWorldToProjective(jointPos, screenPos);
-  //println(jointPos);
-  fill(255, 0, 0, 255);
-  noStroke();
-  ellipse(screenPos.x, screenPos.y, 10, 10);
-  
-  context.getJointPositionSkeleton(userId,SimpleOpenNI.SKEL_RIGHT_HAND,jointPos);
-  context.convertRealWorldToProjective(jointPos, screenPos);
-  //println(jointPos);
-  //println(screenPos);
-  fill(0,255, 0, 255);
-  noStroke();
-  ellipse(screenPos.x, screenPos.y, 10, 10);
-
-
-  
-  context.drawLimb(userId, SimpleOpenNI.SKEL_HEAD, SimpleOpenNI.SKEL_NECK);
-
-  context.drawLimb(userId, SimpleOpenNI.SKEL_NECK, SimpleOpenNI.SKEL_LEFT_SHOULDER);
-  context.drawLimb(userId, SimpleOpenNI.SKEL_LEFT_SHOULDER, SimpleOpenNI.SKEL_LEFT_ELBOW);
-  context.drawLimb(userId, SimpleOpenNI.SKEL_LEFT_ELBOW, SimpleOpenNI.SKEL_LEFT_HAND);
-
-  context.drawLimb(userId, SimpleOpenNI.SKEL_NECK, SimpleOpenNI.SKEL_RIGHT_SHOULDER);
-  context.drawLimb(userId, SimpleOpenNI.SKEL_RIGHT_SHOULDER, SimpleOpenNI.SKEL_RIGHT_ELBOW);
-  context.drawLimb(userId, SimpleOpenNI.SKEL_RIGHT_ELBOW, SimpleOpenNI.SKEL_RIGHT_HAND);
-
-  context.drawLimb(userId, SimpleOpenNI.SKEL_LEFT_SHOULDER, SimpleOpenNI.SKEL_TORSO);
-  context.drawLimb(userId, SimpleOpenNI.SKEL_RIGHT_SHOULDER, SimpleOpenNI.SKEL_TORSO);
-
-  context.drawLimb(userId, SimpleOpenNI.SKEL_TORSO, SimpleOpenNI.SKEL_LEFT_HIP);
-  context.drawLimb(userId, SimpleOpenNI.SKEL_LEFT_HIP, SimpleOpenNI.SKEL_LEFT_KNEE);
-  context.drawLimb(userId, SimpleOpenNI.SKEL_LEFT_KNEE, SimpleOpenNI.SKEL_LEFT_FOOT);
-
-  context.drawLimb(userId, SimpleOpenNI.SKEL_TORSO, SimpleOpenNI.SKEL_RIGHT_HIP);
-  context.drawLimb(userId, SimpleOpenNI.SKEL_RIGHT_HIP, SimpleOpenNI.SKEL_RIGHT_KNEE);
-  context.drawLimb(userId, SimpleOpenNI.SKEL_RIGHT_KNEE, SimpleOpenNI.SKEL_RIGHT_FOOT);  
-}
 
 
 // -----------------------------------------------------------------

@@ -112,14 +112,14 @@ class UserShape {
     if (!dead) pos = box2d.getBodyPixelCoord(body);
     float alpha = 150 - framecount * 150/lifetime;
     noStroke();
-    fill(red(col),green(col),blue(col), alpha / 2);
+    fill(red(col),green(col),blue(col), alpha);
     // depending on the r this combi-code displays either a polygon or a circle
-    float newr = r;
-    ellipse(pos.x, pos.y, newr*2, newr*2);
+    ellipse(pos.x, pos.y, r*2, r*2);
     //if (user != null) newr = newr * (1 + (Math.abs(((pos.x - user.lowx) / width + counter.measurearc))-0.5)*2.0 ) ;
-    newr = newr * 1+counter.measurearc*0.5;
-    fill(red(col),green(col),blue(col), alpha / 2);
-    ellipse(pos.x, pos.y, newr*2, newr*2);
+    //newr = newr * (1+counter.measurearc*0.5);
+    //fill(red(col),green(col),blue(col), alpha / 2);
+    //fill(255*(counter.measurearc), alpha / 2);
+    //ellipse(pos.x, pos.y, r, r);
     
   }
 
