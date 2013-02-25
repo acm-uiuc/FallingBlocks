@@ -22,7 +22,7 @@ class PhysicsSkeleton {
     fd.restitution = 0.3;
     Filter filter = new Filter();
     filter.categoryBits = USER_SHAPES;
-    filter.maskBits = FALLING_SHAPES + INTERACTION_SHAPES;
+    filter.maskBits = FALLING_SHAPES + GRAVITY_SHAPES;
     fd.filter = filter;
     
     BodyDef lbd = new BodyDef();

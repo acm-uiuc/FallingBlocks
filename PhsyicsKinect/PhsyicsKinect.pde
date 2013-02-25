@@ -15,7 +15,7 @@ import org.jbox2d.collision.Manifold;
 import java.util.Collections;
 import oscP5.*; // osc
 import netP5.*; // osc
-
+import java.util.LinkedList;
 
 //CONTACT LISTENER
 
@@ -24,7 +24,7 @@ import netP5.*; // osc
 final static int USER_SHAPES = 1;
 final static int FALLING_SHAPES = 2;
 final static int USER_FIGURE_SHAPES = 4;
-final static int INTERACTION_SHAPES = 8;
+final static int GRAVITY_SHAPES = 8;
 
 // declare SimpleOpenNI object
 SimpleOpenNI context;
@@ -53,6 +53,7 @@ PBox2D box2d;
 MusicBallz musicbox = new MusicBallz();
 UserManager usermanager = new UserManager();
 Counter counter = new Counter();
+GravityShapes gravityshapes = new GravityShapes();
 // list to hold all the custom shapes (circles, polygons)
 
 void setup() {
@@ -92,6 +93,10 @@ void setup() {
     box2d.listenForCollisions();
     // set random colors (background, blob)
   }
+  /* set up layers */
+  gravityshapes.setup();
+  
+  
   setupOSC();
 }
 
@@ -130,6 +135,7 @@ void draw() {
 void updateAndDrawBox2D() {
   musicbox.update();
   usermanager.update();
+  gravityshapes.update();
   int start = millis();
   // take one step in the box2d physics world
   box2d.step();
@@ -147,12 +153,13 @@ void updateAndDrawBox2D() {
 
 
   start = millis();
-  musicbox.draw();
+  //musicbox.draw();
   
   //println("time in drawing other shapes: "+(millis()-start));
   
   
   usermanager.draw();
+  gravityshapes.draw();
 
 }
 

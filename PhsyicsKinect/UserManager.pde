@@ -1,7 +1,6 @@
 final static int MAX_CIRCLES = 1000;
 
 
-boolean usergravity = true;
 
 class UserManager {
   HashMap<Integer, UserInfo> usermap = new HashMap<Integer, UserInfo>();
@@ -12,18 +11,6 @@ class UserManager {
       info.update();
     }
     
-    if (usergravity == true) {
-      for (UserInfo info : usermap.values()) {
-        if (Float.isNaN(info.lefthand.x) == false) {
-          musicbox.applyRadialGravity(info.lefthand.x, info.lefthand.y, 10000);
-        }
-      }
-      //musicbox.applyRadialGravity(kinectWidth/2, kinectHeight/2, 1000);
-      box2d.setGravity(0, 0);
-
-    } else {
-      box2d.setGravity(0, -35);
-    }
     
     HashMap<Integer, UserInfo> scenetouser = makeSceneToUserMap();
     

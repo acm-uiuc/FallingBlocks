@@ -82,7 +82,7 @@ class CustomShape {
     fd.restitution = 0.3;
     Filter filter = new Filter();
     filter.categoryBits = FALLING_SHAPES;
-    filter.maskBits = USER_SHAPES+FALLING_SHAPES+USER_FIGURE_SHAPES+INTERACTION_SHAPES;
+    filter.maskBits = USER_SHAPES+FALLING_SHAPES+USER_FIGURE_SHAPES;
     fd.filter = filter;
 
     
