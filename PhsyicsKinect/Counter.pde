@@ -3,7 +3,6 @@ static int framesPerBeat = 30;
 static final int beatsPerMeasure = 4;
 static final int measuresPerPhrase = 4;
 
-Counter counter = new Counter();
 
 class Counter {
   int frame;

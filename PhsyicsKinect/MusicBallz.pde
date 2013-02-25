@@ -19,6 +19,20 @@ class MusicBallz {
   
   
   
+  public void applyRadialGravity(float x, float y, float g) {
+    println("USER GRAVITY NUMSHAPES: "+polygons.size()+ " AT "+x+", "+y);
+    Vec2 gravcenter = box2d.coordPixelsToWorld(x,y);
+    for (CustomShape shape : polygons) {
+      Vec2 shapecenter = shape.body.getPosition();
+      Vec2 diff = gravcenter.sub(shapecenter);
+      float dist = diff.lengthSquared();
+      dist = max(dist, 30);
+      diff.normalize();
+      Vec2 results = diff.mul( g / dist );
+      shape.body.applyForce(results, shapecenter);
+    }
+  }
+  
   
   
   

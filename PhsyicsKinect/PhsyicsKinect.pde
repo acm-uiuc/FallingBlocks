@@ -28,12 +28,8 @@ final static int INTERACTION_SHAPES = 8;
 
 // declare SimpleOpenNI object
 SimpleOpenNI context;
-// declare BlobDetection object
-BlobDetection theBlobDetection;
 // ToxiclibsSupport for displaying polygons
 ToxiclibsSupport gfx;
-// declare custom PolygonBlob object (see class for more info)
-PolygonBlob poly;
 
 // osc interface
 OscP5 oscP5;
@@ -51,20 +47,12 @@ int kinectHeight = 480;
 // to center and rescale from 640x480 to higher custom resolutions
 float reScale;
 
-// background and blob color
-color bgColor, blobColor;
-// three color palettes (artifact from me storing many interesting color palettes as strings in an external data file ;-)
-String[] palettes = {
-  "-1117720,-13683658,-8410437,-9998215,-1849945,-5517090,-4250587,-14178341,-5804972,-3498634", 
-  "-67879,-9633503,-8858441,-144382,-4996094,-16604779,-588031", 
-  "-1978728,-724510,-15131349,-13932461,-4741770,-9232823,-3195858,-8989771,-2850983,-10314372"
-};
-color[] colorPalette;
 
 // the main PBox2D object in which all the physics-based stuff is happening
 PBox2D box2d;
 MusicBallz musicbox = new MusicBallz();
 UserManager usermanager = new UserManager();
+Counter counter = new Counter();
 // list to hold all the custom shapes (circles, polygons)
 
 void setup() {
@@ -95,11 +83,6 @@ void setup() {
     // currently it's rescaled to fill the complete width (cuts of top-bottom)
     // it's also possible to fill the complete height (leaves empty sides)
     reScale = (float) width / kinectWidth;
-    // create a smaller blob image for speed and efficiency
-    blobs = createImage(kinectWidth/3, kinectHeight/3, RGB);
-    // initialize blob detection object to the blob image dimensions
-    theBlobDetection = new BlobDetection(blobs.width, blobs.height);
-    theBlobDetection.setThreshold(0.2);
     // initialize ToxiclibsSupport object
     gfx = new ToxiclibsSupport(this);
     // setup box2d, create world, set gravity
@@ -281,7 +264,7 @@ void sendMessage(OscMessage message) {
 
 
 void beginContact(Contact c) {
-  println("Contact!"); 
+  //println("Contact!"); 
   
   Vec2 posBody1 = box2d.getBodyPixelCoord(c.getFixtureA().m_body);
   Vec2 posBody2 = box2d.getBodyPixelCoord(c.getFixtureB().m_body);

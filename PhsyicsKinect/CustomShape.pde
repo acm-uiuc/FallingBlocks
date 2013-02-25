@@ -1,4 +1,4 @@
-// usually one would probably make a generic Shape class and subclass different types (circle, polygon), but that
+ // usually one would probably make a generic Shape class and subclass different types (circle, polygon), but that
 // would mean at least 3 instead of 1 class, so for this tutorial it's a combi-class CustomShape for all types of shapes
 // to save some space and keep the code as concise as possible I took a few shortcuts to prevent repeating the same code
 
@@ -71,7 +71,7 @@ class CustomShape {
     bd.position.set(box2d.coordPixelsToWorld(new Vec2(x, y)));
     body = box2d.createBody(bd);
     body.m_userData = this;
-    //body.setLinearVelocity(new Vec2(random(-8, 8), random(2, 8)));
+    body.setLinearVelocity(new Vec2(0, -10));
     body.setAngularVelocity(random(-5, 5));
     
     
