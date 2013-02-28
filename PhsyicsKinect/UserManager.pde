@@ -3,7 +3,7 @@ final static int MAX_CIRCLES = 1000;
 
 
 class UserManager {
-  HashMap<Integer, UserInfo> usermap = new HashMap<Integer, UserInfo>();
+  ConcurrentHashMap<Integer, UserInfo> usermap = new ConcurrentHashMap<Integer, UserInfo>();
 
   public void update() {
     for (UserInfo info : usermap.values()) {
@@ -40,6 +40,22 @@ class UserManager {
     usermap.put(userId, new UserInfo(userId));
   }
 
+
+
+  
+  
+  
+  public void sendOSC() {
+    for (UserInfo info : usermap.values()) {
+      OscMessage msg = new OscMessage("/user"); // "/collision 3 1.3 302, 400"
+      msg.add(info.id); // add an int to the osc message
+      msg.add(info.lefthand.x);
+      msg.add(info.lefthand.y);
+      msg.add(info.righthand.x);
+      msg.add(info.righthand.y);
+      sendMessage(msg);
+    }
+  }
   
   
 }
@@ -119,6 +135,7 @@ class UserInfo {
     this.sceneid = id;
     
   }
+
 
   
 }

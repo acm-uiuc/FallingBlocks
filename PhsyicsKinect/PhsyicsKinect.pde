@@ -16,6 +16,8 @@ import java.util.Collections;
 import oscP5.*; // osc
 import netP5.*; // osc
 import java.util.LinkedList;
+import java.util.*;
+import java.util.concurrent.*;
 
 //CONTACT LISTENER
 
@@ -51,6 +53,7 @@ float reScale;
 // the main PBox2D object in which all the physics-based stuff is happening
 PBox2D box2d;
 Counter counter = new Counter();
+OSCThread oscthread = new OSCThread();
 // list to hold all the custom shapes (circles, polygons)
 
 ArrayList<Layer> layers = new ArrayList<Layer>();
@@ -59,7 +62,7 @@ UserManager usermanager = new UserManager();
 void setup() {
   // it's possible to customize this, for example 1920x1080
   size(800, 600, OPENGL);
-  frameRate(30);
+  frameRate(60);
   context = new SimpleOpenNI(this);
   
   // enable skeleton generation for all joints
@@ -113,6 +116,7 @@ void setupOSC() {
   oscP5 = new OscP5(this,9124);
   // set the remote location to be the localhost on port 5001
   pdAddress = new NetAddress("127.0.0.1",9123);
+  oscthread.start();
 }
 
 
@@ -157,6 +161,34 @@ void updateAndDrawBox2D() {
 
   layers.get(0).draw();
 
+}
+
+
+
+
+
+
+class OSCThread extends Thread {
+  public void run() {
+    while(true) {
+      try {
+        
+        for (Layer l : layers) {
+          l.sendOSC();
+        }
+        usermanager.sendOSC();
+        
+      } catch (Exception e) {
+        e.printStackTrace();
+      }
+      try { Thread.sleep(33L); } catch (Exception e) { } 
+    }
+  }
+}
+
+
+void sendMessage(OscMessage message) {
+  oscP5.send(message, pdAddress);
 }
 
 
@@ -260,9 +292,6 @@ void sendFrame() {
     sendMessage(myMessage); 
 }
 
-void sendMessage(OscMessage message) {
-  oscP5.send(message, pdAddress);
-}
 
 
 

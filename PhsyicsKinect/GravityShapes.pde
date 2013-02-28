@@ -4,6 +4,7 @@ class GravityShapes {
   ArrayList<GravityShape> gravityshapes = new ArrayList<GravityShape>();
   int maxshapesperbeat = 1;
   int MAX_SHAPES = 100;
+  int shapecounter = 0;
   
   
   void setup() {
@@ -12,28 +13,30 @@ class GravityShapes {
   }
   
   void update() {
-    
-    if (counter.frame == 0) {
-      if (gravityshapes.size() < MAX_SHAPES) {
-        gravityshapes.add(new GravityShape(random(0, kinectWidth), 0, 3));
+    synchronized(gravityshapes) {
+      if (counter.frame == 0) {
+        if (gravityshapes.size() < MAX_SHAPES) {
+          gravityshapes.add(new GravityShape(random(0, kinectWidth), 0, 3, shapecounter));
+          shapecounter += 1;
+        }
       }
-    }
-
-    
-    for (UserInfo info : usermanager.usermap.values()) {
-      if (Float.isNaN(info.lefthand.x) == false) {
-        applyRadialGravity(info.lefthand.x, info.lefthand.y, 10000);
+  
+      
+      for (UserInfo info : usermanager.usermap.values()) {
+        if (Float.isNaN(info.lefthand.x) == false) {
+          applyRadialGravity(info.lefthand.x, info.lefthand.y, 10000);
+        }
+        if (Float.isNaN(info.righthand.x) == false) {
+          applyRadialGravity(info.righthand.x, info.righthand.y, 10000);
+        }
       }
-      if (Float.isNaN(info.righthand.x) == false) {
-        applyRadialGravity(info.righthand.x, info.righthand.y, 10000);
+      
+      for (GravityShape g : gravityshapes) {
+        Vec2 pos = box2d.getBodyPixelCoord(g.body);
+        applyRadialGravity(pos.x, pos.y, 100);
       }
+      println("Num asteroids: "+gravityshapes.size());
     }
-    
-    for (GravityShape g : gravityshapes) {
-      Vec2 pos = box2d.getBodyPixelCoord(g.body);
-      applyRadialGravity(pos.x, pos.y, 100);
-    }
-
   }
   
   
@@ -44,7 +47,7 @@ class GravityShapes {
   }
   
   public void applyRadialGravity(float x, float y, float g) {
-    println("USER GRAVITY NUMSHAPES: "+gravityshapes.size()+ " AT "+x+", "+y);
+    //println("USER GRAVITY NUMSHAPES: "+gravityshapes.size()+ " AT "+x+", "+y);
     Vec2 gravcenter = box2d.coordPixelsToWorld(x,y);
     for (GravityShape shape : gravityshapes) {
       Vec2 shapecenter = shape.body.getPosition();
@@ -60,16 +63,35 @@ class GravityShapes {
   
   
   void draw() {
-    for (int i=gravityshapes.size()-1; i>=0; i--) {
-      GravityShape cs = gravityshapes.get(i);
-      // if the shape is off-screen remove it (see class for more info)
-      if (cs.done()) {
-        gravityshapes.remove(i);
-      // otherwise update (keep shape outside person) and display (circle or polygon)
-      } else {
-        //cs.update();
-        cs.display();
+    synchronized(gravityshapes) {
+      for (int i=gravityshapes.size()-1; i>=0; i--) {
+        GravityShape cs = gravityshapes.get(i);
+        // if the shape is off-screen remove it (see class for more info)
+        if (cs.done()) {
+          gravityshapes.remove(i);
+        // otherwise update (keep shape outside person) and display (circle or polygon)
+        } else {
+          //cs.update();
+          cs.display();
+        }
       }
+    }
+  }
+  
+  
+  void sendOSC() {
+    ArrayList<GravityShape> clonedshapes = null;
+    synchronized(gravityshapes) {
+      clonedshapes = (ArrayList<GravityShape>)gravityshapes.clone();
+    }
+    for (GravityShape shape : clonedshapes) {
+      Vec2 pos = box2d.getBodyPixelCoord(shape.body);
+   
+      OscMessage msg = new OscMessage("/asteroid"); // "/collision 3 1.3 302, 400"
+      msg.add(shape.id); // add an int to the osc message
+      msg.add(pos.x);
+      msg.add(pos.y);
+      sendMessage(msg);
     }
 
   }
@@ -93,12 +115,14 @@ class GravityShape {
   Body body;
   color col;
   float r;
+  int id;
   int framecount = 0;
   int lifetime = 1000;
   LinkedList<Vec2> path = new LinkedList<Vec2>();
 
-  GravityShape(float x, float y, float r) {
+  GravityShape(float x, float y, float r, int id) {
     this.r = r;
+    this.id = id;
     // create a body (polygon or circle based on the r)
     makeBody(x, y, random(-10, 10), -20);
     // get a random color
@@ -253,7 +277,7 @@ class GravityUser {
     //println("time in drawing polygons: "+(millis()-start));
     popStyle();
   }
-  
+
 }
 
 
