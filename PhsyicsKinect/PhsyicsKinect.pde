@@ -50,11 +50,11 @@ float reScale;
 
 // the main PBox2D object in which all the physics-based stuff is happening
 PBox2D box2d;
-MusicBallz musicbox = new MusicBallz();
-UserManager usermanager = new UserManager();
 Counter counter = new Counter();
-GravityShapes gravityshapes = new GravityShapes();
 // list to hold all the custom shapes (circles, polygons)
+
+ArrayList<Layer> layers = new ArrayList<Layer>();
+UserManager usermanager = new UserManager(); 
 
 void setup() {
   // it's possible to customize this, for example 1920x1080
@@ -93,8 +93,16 @@ void setup() {
     box2d.listenForCollisions();
     // set random colors (background, blob)
   }
+  
+  
+  
   /* set up layers */
-  gravityshapes.setup();
+  Layer gravity = new GravityLayer();
+  gravity.setup();
+  layers.add(gravity);
+  Layer bouncy = new BouncyLayer();
+  bouncy.setup();
+  layers.add(bouncy);
   
   
   setupOSC();
@@ -127,15 +135,16 @@ void draw() {
   // update the SimpleOpenNI object
   context.update();
   counter.update();
+  usermanager.update();
+  
   updateAndDrawBox2D();
 
   sendFrame(); 
 }
 
 void updateAndDrawBox2D() {
-  musicbox.update();
-  usermanager.update();
-  gravityshapes.update();
+  layers.get(0).update();
+  
   int start = millis();
   // take one step in the box2d physics world
   box2d.step();
@@ -146,20 +155,7 @@ void updateAndDrawBox2D() {
   translate(0, (height-kinectHeight*reScale)/2);
   scale(reScale);
 
-  // display the person's polygon  
-  //noStroke();
-  //fill(blobColor);
-  //gfx.polygon2D(poly);
-
-
-  start = millis();
-  //musicbox.draw();
-  
-  //println("time in drawing other shapes: "+(millis()-start));
-  
-  
-  usermanager.draw();
-  gravityshapes.draw();
+  layers.get(0).draw();
 
 }
 
