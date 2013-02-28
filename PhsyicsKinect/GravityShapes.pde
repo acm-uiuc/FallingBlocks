@@ -28,6 +28,11 @@ class GravityShapes {
         applyRadialGravity(info.righthand.x, info.righthand.y, 10000);
       }
     }
+    
+    for (GravityShape g : gravityshapes) {
+      Vec2 pos = box2d.getBodyPixelCoord(g.body);
+      applyRadialGravity(pos.x, pos.y, 100);
+    }
 
   }
   
