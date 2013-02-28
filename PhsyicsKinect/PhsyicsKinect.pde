@@ -61,7 +61,8 @@ UserManager usermanager = new UserManager();
 
 void setup() {
   // it's possible to customize this, for example 1920x1080
-  size(800, 600, OPENGL);
+  //size(800, 600, OPENGL);
+  size(displayWidth, displayHeight, OPENGL);
   frameRate(60);
   context = new SimpleOpenNI(this);
   
