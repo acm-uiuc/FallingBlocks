@@ -3,7 +3,7 @@ class GravityShapes {
   PGraphics p;
   ArrayList<GravityShape> gravityshapes = new ArrayList<GravityShape>();
   int maxshapesperbeat = 1;
-  int MAX_SHAPES = 100;
+  int MAX_SHAPES = 50;
   int shapecounter = 0;
   
   
@@ -84,6 +84,7 @@ class GravityShapes {
     synchronized(gravityshapes) {
       clonedshapes = (ArrayList<GravityShape>)gravityshapes.clone();
     }
+    println("Sending out "+clonedshapes.size()+" messages");
     for (GravityShape shape : clonedshapes) {
       Vec2 pos = box2d.getBodyPixelCoord(shape.body);
    
@@ -117,7 +118,7 @@ class GravityShape {
   float r;
   int id;
   int framecount = 0;
-  int lifetime = 1000;
+  int lifetime = 1370;
   LinkedList<Vec2> path = new LinkedList<Vec2>();
 
   GravityShape(float x, float y, float r, int id) {
