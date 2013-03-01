@@ -41,7 +41,7 @@ NetAddress pdAddress;
 boolean autoCalib=true;
 
 
-boolean USE_KINECT = false;
+boolean USE_KINECT = true;
 
 
 // PImage to hold incoming imagery and smaller one for blob detection
