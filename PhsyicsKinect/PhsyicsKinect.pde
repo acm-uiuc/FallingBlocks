@@ -29,7 +29,7 @@ final static int USER_FIGURE_SHAPES = 4;
 final static int GRAVITY_SHAPES = 8;
 
 // declare SimpleOpenNI object
-SimpleOpenNI context;
+ContextWrapper context;
 // ToxiclibsSupport for displaying polygons
 ToxiclibsSupport gfx;
 
@@ -39,6 +39,9 @@ OscP5 oscP5;
 NetAddress pdAddress;
 
 boolean autoCalib=true;
+
+
+boolean USE_KINECT = false;
 
 
 // PImage to hold incoming imagery and smaller one for blob detection
@@ -64,13 +67,18 @@ void setup() {
   //size(800, 600, OPENGL);
   size(displayWidth, displayHeight, OPENGL);
   frameRate(60);
-  context = new SimpleOpenNI(this);
   
+  if (USE_KINECT) {
+    context = new ContextWrapper(new SimpleOpenNI(this));
+  } else {
+    new SimpleOpenNI(this);
+    context = new ContextWrapper(null);
+  }
   // enable skeleton generation for all joints
   println("Setting up skeletal tracking");
   context.enableDepth();
   //context.enableRGB();
-  context.enableScene();
+  //context.enableScene();
   context.enableUser(SimpleOpenNI.SKEL_PROFILE_ALL);
   println("Done with skeletal tracking");
 
@@ -89,16 +97,16 @@ void setup() {
     // it's also possible to fill the complete height (leaves empty sides)
     reScale = (float) width / kinectWidth;
     // initialize ToxiclibsSupport object
-    gfx = new ToxiclibsSupport(this);
-    // setup box2d, create world, set gravity
-    box2d = new PBox2D(this);
-    box2d.createWorld();
-    box2d.setGravity(0, -35);
-    box2d.listenForCollisions();
     // set random colors (background, blob)
   }
   
   
+  gfx = new ToxiclibsSupport(this);
+  // setup box2d, create world, set gravity
+  box2d = new PBox2D(this);
+  box2d.createWorld();
+  box2d.setGravity(0, -35);
+  box2d.listenForCollisions();
   
   /* set up layers */
   Layer gravity = new GravityLayer();
@@ -290,7 +298,7 @@ void sendFrame() {
    
     myMessage.add(frameCount); // add an int to the osc message   
     // send the message
-    sendMessage(myMessage); 
+    //sendMessage(myMessage); 
 }
 
 
@@ -341,6 +349,80 @@ void beginContact(Contact c) {
     sendMessage(myMessage); 
   }  
 
+}
+
+
+
+
+
+class ContextWrapper {
+  int[] scenemap = new int[kinectWidth*kinectHeight];
+  int[] depthmap = new int[kinectWidth*kinectHeight];
+  SimpleOpenNI context;
+  
+  public ContextWrapper(SimpleOpenNI context) {
+    this.context = context;
+  }
+  
+  boolean enableDepth() {
+    if (context != null) return context.enableDepth();
+    else return true;
+  }
+  boolean enableScene() {
+    if (context != null) return context.enableScene();
+    else return true;
+  } 
+  boolean enableUser(int x) {
+    if (context != null) return context.enableUser(x);
+    else return true;
+  }
+  
+  void requestCalibrationSkeleton(int userId, boolean bool) {
+    if (context != null) context.requestCalibrationSkeleton(userId,bool);
+  }
+  
+  void startPoseDetection(String name, int userId) {
+    if (context != null) context.startPoseDetection(name,userId);
+  }
+  
+  void startTrackingSkeleton(int userId) {
+    if (context != null) context.startTrackingSkeleton(userId);
+  }
+  
+  void stopPoseDetection(int userId) {
+    if (context != null) context.stopPoseDetection(userId);
+  }  
+
+  void setMirror(boolean mirrored) {
+    if (context != null) context.setMirror(mirrored);
+    else return;
+  }  
+  
+  void getJointPositionSkeleton(int id, int joint, PVector jointPos) {
+    if (context != null) context.getJointPositionSkeleton(id, joint, jointPos);
+  }
+  
+  void convertRealWorldToProjective(PVector x, PVector y) {
+    if (context != null) context.convertRealWorldToProjective(x, y);
+  }
+  
+  void update() {
+    if (context != null) context.update();
+  }
+  
+  public PImage sceneImage() {
+    if (context != null) return context.sceneImage();
+    else return new PImage();
+  }
+  
+  public int[] sceneMap() {
+    if (context != null) return context.sceneMap();
+    return scenemap;
+  }
+  public int[] depthMap() {
+    if (context != null) return context.depthMap();
+    return depthmap;
+  }
 }
 
 

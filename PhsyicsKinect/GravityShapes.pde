@@ -31,6 +31,10 @@ class GravityShapes {
         }
       }
       
+      if (USE_KINECT == false) {
+        applyRadialGravity(mouseX*kinectWidth/float(width), mouseY*kinectHeight/float(height), 10000);
+      }
+      
       for (GravityShape g : gravityshapes) {
         Vec2 pos = box2d.getBodyPixelCoord(g.body);
         applyRadialGravity(pos.x, pos.y, 100);
@@ -92,6 +96,8 @@ class GravityShapes {
       msg.add(shape.id); // add an int to the osc message
       msg.add(pos.x);
       msg.add(pos.y);
+      msg.add(shape.curvature);
+      msg.add(shape.speed);
       sendMessage(msg);
     }
 
@@ -120,6 +126,10 @@ class GravityShape {
   int framecount = 0;
   int lifetime = 1370;
   LinkedList<Vec2> path = new LinkedList<Vec2>();
+  float curvature;
+  float velx;
+  float vely;
+  float speed;
 
   GravityShape(float x, float y, float r, int id) {
     this.r = r;
@@ -170,6 +180,8 @@ class GravityShape {
     framecount += 1;
     Vec2 pos = box2d.getBodyPixelCoord(body);
     path.add(pos);
+    calculateCurve();
+    calculateVelocityAndSpeed();
     
     drawTail();
     // get the pixel coordinates of the body
@@ -179,7 +191,37 @@ class GravityShape {
     // depending on the r this combi-code displays either a polygon or a circle
     ellipse(pos.x, pos.y, r*2, r*2);
     
+    
+    fill(255,0,0, 100);
+    rect(300, 100+id*2, this.curvature*200, 2);
+    fill(0, 255, 0, 100);
+    rect(100, 100+id*2, this.speed*1, 2);
+
+    
     while (path.size() > MAX_PATH) path.poll();
+  }
+  
+  void calculateCurve() {
+    if (path.size() < 3) return;
+    int size = path.size();
+    Vec2 pt1 = path.get(size-1);
+    Vec2 pt2 = path.get(size-2);
+    Vec2 pt3 = path.get(size-3);
+    float newcurve = (float)findCurvature(pt1.x, pt1.y, pt2.x, pt2.y, pt3.x, pt3.y);
+    float avgr = 8;
+    this.curvature = (this.curvature*avgr+newcurve)/(avgr+1);
+  }
+  
+  void calculateVelocityAndSpeed() {
+    if (path.size() < 2) return;
+    int size = path.size();
+    Vec2 pt1 = path.get(size-1);
+    Vec2 pt2 = path.get(size-2);
+    Vec2 vel = pt1.sub(pt2);
+    this.velx = vel.x;
+    this.vely = vel.y;
+    this.speed = vel.length();
+    
   }
   
   void drawTail() {
@@ -312,4 +354,34 @@ class GUserShape {
   }
   
 }
+
+
+
+public static double findCurvature(double x1, double y1, double x2, double y2, double x3, double y3) {
+  double angle1 = getAngle(x1,y1,x2,y2);
+  double angle2 = getAngle(x2,y2,x3,y3);
+  if (angle1 == 0.0f || angle2 == 0.0f) {
+    return 0.0f;
+  }    
+  double result = angle1-angle2;
+  if (result > Math.PI) {
+    //System.out.println("Result too big! taking other atan2: "+result+" New: "+(2*Math.PI-result));
+
+    result =  (2*Math.PI-result);
+  }
+  else if (result < -1*Math.PI) {
+    //System.out.println("Result too small! taking other atan2: "+result+" New: "+(2*Math.PI+result));
+
+    result =  (2*Math.PI+result);
+  }
+
+  //System.out.println("Curvature: "+result+" First Angle:"+angle1+" Second Angle: "+angle2);
+
+  return result;
+
+}
+public static double getAngle(double x1, double y1, double x2, double y2) {
+  return Math.atan2(x1-x2, y1-y2);
+}
+
 
