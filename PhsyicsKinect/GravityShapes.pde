@@ -101,7 +101,8 @@ class GravityShapes {
       msg.add(pos.x);
       msg.add(pos.y);
       msg.add(shape.curvature);
-      msg.add(shape.speed);
+      msg.add(shape.forcemag);
+      msg.add(shape.hue);
       sendMessage(msg);
     }
 
@@ -137,6 +138,7 @@ class GravityShape {
   float forcemag;
   float forcex;
   float forcey;
+  float hue;
 
   GravityShape(float x, float y, float r, int id) {
     this.r = r;
@@ -200,6 +202,7 @@ class GravityShape {
     float alpha = 150 - framecount * 150/lifetime;
     colorMode(HSB, 360, 100, 100);
     float hue = lerp(260, -10, forcemag/530);
+    this.hue = hue;
     
     stroke(hue, 65, 75, alpha);
     drawTail();
