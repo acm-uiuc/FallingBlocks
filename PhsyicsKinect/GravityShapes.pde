@@ -208,13 +208,15 @@ class GravityShape {
     fill(hue, 65, 75, alpha);
     ellipse(pos.x, pos.y, r*2, r*2);
     
+    /*
     fill(255,0,0, 100);
     rect(300, 100+(id%50)*2, this.curvature*200, 2);
     fill(0, 255, 0, 100);
     rect(100, 100+(id%50)*2, this.speed*1, 2);
     fill(0, 255, 255, 100);
     rect(50, 100+(id%50)*2, this.forcemag*1, 2);
-
+    */
+  
     while (path.size() > MAX_PATH) path.poll();
   }
   
@@ -244,7 +246,9 @@ class GravityShape {
     Vec2 force = body.m_force;
     this.forcex = force.x;
     this.forcey = force.y;
-    this.forcemag = force.length();
+    float newforce = force.length();
+    float smooth = 3;
+    this.forcemag = (this.forcemag*smooth+newforce)/(smooth+1);
   }
   
   void drawTail() {
