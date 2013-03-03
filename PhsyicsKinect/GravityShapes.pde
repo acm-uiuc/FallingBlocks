@@ -40,6 +40,10 @@ class GravityShapes {
         applyRadialGravity(pos.x, pos.y, 100);
       }
       println("Num asteroids: "+gravityshapes.size());
+      
+      for (GravityShape g : gravityshapes) {
+        g.update();
+      }
     }
   }
   
@@ -176,6 +180,11 @@ class GravityShape {
     body.createFixture(fd);
     
   }
+  
+  
+  void update() {
+    calculateForce();
+  }
 
 
   // display the customShape
@@ -185,7 +194,6 @@ class GravityShape {
     path.add(pos);
     calculateCurve();
     calculateVelocityAndSpeed();
-    calculateForce();
     
     drawTail();
     // get the pixel coordinates of the body
@@ -201,7 +209,7 @@ class GravityShape {
     fill(0, 255, 0, 100);
     rect(100, 100+(id%50)*2, this.speed*1, 2);
     fill(0, 255, 255, 100);
-    rect(50, 100+(id%50)*2, this.forcemag*100, 2);
+    rect(50, 100+(id%50)*2, this.forcemag*1, 2);
 
     
     while (path.size() > MAX_PATH) path.poll();
