@@ -130,6 +130,9 @@ class GravityShape {
   float velx;
   float vely;
   float speed;
+  float forcemag;
+  float forcex;
+  float forcey;
 
   GravityShape(float x, float y, float r, int id) {
     this.r = r;
@@ -182,6 +185,7 @@ class GravityShape {
     path.add(pos);
     calculateCurve();
     calculateVelocityAndSpeed();
+    calculateForce();
     
     drawTail();
     // get the pixel coordinates of the body
@@ -193,9 +197,11 @@ class GravityShape {
     
     
     fill(255,0,0, 100);
-    rect(300, 100+id*2, this.curvature*200, 2);
+    rect(300, 100+(id%50)*2, this.curvature*200, 2);
     fill(0, 255, 0, 100);
-    rect(100, 100+id*2, this.speed*1, 2);
+    rect(100, 100+(id%50)*2, this.speed*1, 2);
+    fill(0, 255, 255, 100);
+    rect(50, 100+(id%50)*2, this.forcemag*100, 2);
 
     
     while (path.size() > MAX_PATH) path.poll();
@@ -221,7 +227,13 @@ class GravityShape {
     this.velx = vel.x;
     this.vely = vel.y;
     this.speed = vel.length();
-    
+  }
+  
+  void calculateForce() {
+    Vec2 force = body.m_force;
+    this.forcex = force.x;
+    this.forcey = force.y;
+    this.forcemag = force.length();
   }
   
   void drawTail() {
