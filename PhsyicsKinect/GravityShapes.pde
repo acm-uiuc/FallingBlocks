@@ -116,7 +116,7 @@ class GravityShapes {
 
 
 color[] gravitycolors = {
-  #557766,
+  260, 350,
 };
 
 
@@ -195,14 +195,18 @@ class GravityShape {
     calculateCurve();
     calculateVelocityAndSpeed();
     
-    drawTail();
+    
     // get the pixel coordinates of the body
     float alpha = 150 - framecount * 150/lifetime;
-    noStroke();
-    fill(red(col),green(col),blue(col), alpha);
-    // depending on the r this combi-code displays either a polygon or a circle
-    ellipse(pos.x, pos.y, r*2, r*2);
+    colorMode(HSB, 360, 100, 100);
+    float hue = lerp(260, -10, forcemag/530);
     
+    stroke(hue, 65, 75, alpha);
+    drawTail();
+    
+    noStroke();
+    fill(hue, 65, 75, alpha);
+    ellipse(pos.x, pos.y, r*2, r*2);
     
     fill(255,0,0, 100);
     rect(300, 100+(id%50)*2, this.curvature*200, 2);
@@ -211,7 +215,6 @@ class GravityShape {
     fill(0, 255, 255, 100);
     rect(50, 100+(id%50)*2, this.forcemag*1, 2);
 
-    
     while (path.size() > MAX_PATH) path.poll();
   }
   
@@ -246,10 +249,12 @@ class GravityShape {
   
   void drawTail() {
     if (path.size() <= 0) return;
-    float alpha = 150 - framecount * 150/lifetime;
-    stroke(red(col),green(col),blue(col), alpha/2);
-    strokeJoin(BEVEL);
-    strokeCap(SQUARE);
+    
+    
+    //float alpha = 150 - framecount * 150/lifetime;
+    //stroke(red(col),green(col),blue(col), alpha/2);
+    strokeJoin(ROUND);
+    strokeCap(ROUND);
     strokeWeight(r*3);
     noFill();
     beginShape();
