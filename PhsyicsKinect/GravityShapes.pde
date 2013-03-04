@@ -104,7 +104,7 @@ class GravityShapes {
       msg.add(shape.forcemag);
       msg.add(shape.hue);
       msg.add(shape.closeness);
-      msg.add(1-shape.framecount/float(shape.lifetime));
+      msg.add(1-float(shape.framecount)/float(shape.lifetime));
       sendMessage(msg);
     }
 
@@ -216,14 +216,14 @@ class GravityShape {
     fill(hue, 65, 75, alpha);
     ellipse(pos.x, pos.y, r*2, r*2);
     
-    /*
-    fill(255,0,0, 100);
-    rect(300, 100+(id%50)*2, this.curvature*200, 2);
-    fill(0, 255, 0, 100);
-    rect(100, 100+(id%50)*2, this.speed*1, 2);
-    fill(0, 255, 255, 100);
+    
+    fill(255,100,100, 100);
+    rect(300, 100+(id%50)*2, (this.curvature+0.0)*200, 2);
+    fill(100, 100, 100, 100);
+    rect(100, 100+(id%50)*2, this.closeness*100, 2);
+    fill(0, 100,100, 100);
     rect(50, 100+(id%50)*2, this.forcemag*1, 2);
-    */
+    //*/
   
     while (path.size() > MAX_PATH) path.poll();
   }
@@ -264,7 +264,7 @@ class GravityShape {
     if (pt1.x > 0 && pt1.x < kinectWidth && pt1.y > 0 && pt1.y < kinectHeight) {
       this.closeness = 1;
     } else {
-      this.closeness = 0;//Math.min(1,(kinectWidth)/pt1.sub(centerkinect).length());
+      this.closeness = Math.min(1,float(kinectWidth)/(pt1.sub(centerkinect).length()));
     }
   }
   
