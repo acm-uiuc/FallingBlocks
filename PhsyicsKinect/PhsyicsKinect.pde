@@ -190,7 +190,7 @@ class OSCThread extends Thread {
       } catch (Exception e) {
         e.printStackTrace();
       }
-      try { Thread.sleep(33L); } catch (Exception e) { } 
+      try { Thread.sleep(100L); } catch (Exception e) { } 
     }
   }
 }

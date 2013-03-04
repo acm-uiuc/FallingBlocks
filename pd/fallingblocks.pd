@@ -78,9 +78,11 @@
 #X obj 261 -5035 asteroids;
 #X obj 246 -4867 vol;
 #X obj -216 -5116 OSCroute /collision /beat /frame /asteroid;
+#X obj -149 -4645 clip~ -0.99 0.99;
+#X obj -26 -4644 clip~ -0.99 0.99;
 #X connect 0 0 10 0;
-#X connect 2 0 1 0;
-#X connect 2 1 1 1;
+#X connect 2 0 11 0;
+#X connect 2 1 12 0;
 #X connect 3 0 4 0;
 #X connect 3 0 4 1;
 #X connect 5 0 6 0;
@@ -92,3 +94,5 @@
 #X connect 9 0 2 0;
 #X connect 9 1 2 1;
 #X connect 10 3 8 0;
+#X connect 11 0 1 0;
+#X connect 12 0 1 1;

@@ -3,13 +3,13 @@ class GravityShapes {
   PGraphics p;
   ArrayList<GravityShape> gravityshapes = new ArrayList<GravityShape>();
   int maxshapesperbeat = 1;
-  int MAX_SHAPES = 50;
+  int MAX_SHAPES = 48;
   int shapecounter = 0;
   
   
   void setup() {
     //p = createGraphics(width, height);
-    
+    centerkinect = new Vec2(kinectWidth/2, kinectHeight/2);
   }
   
   void update() {
@@ -103,6 +103,8 @@ class GravityShapes {
       msg.add(shape.curvature);
       msg.add(shape.forcemag);
       msg.add(shape.hue);
+      msg.add(shape.closeness);
+      msg.add(1-shape.framecount/float(shape.lifetime));
       sendMessage(msg);
     }
 
@@ -120,6 +122,7 @@ color[] gravitycolors = {
   260, 350,
 };
 
+Vec2 centerkinect;
 
 int MAX_PATH = 10;
 class GravityShape {
@@ -139,6 +142,7 @@ class GravityShape {
   float forcex;
   float forcey;
   float hue;
+  float closeness;
 
   GravityShape(float x, float y, float r, int id) {
     this.r = r;
@@ -196,6 +200,7 @@ class GravityShape {
     path.add(pos);
     calculateCurve();
     calculateVelocityAndSpeed();
+    calculateCloseness();
     
     
     // get the pixel coordinates of the body
@@ -252,6 +257,15 @@ class GravityShape {
     float newforce = force.length();
     float smooth = 3;
     this.forcemag = (this.forcemag*smooth+newforce)/(smooth+1);
+  }
+  
+  void calculateCloseness() {
+    Vec2 pt1 = path.get(path.size()-1);
+    if (pt1.x > 0 && pt1.x < kinectWidth && pt1.y > 0 && pt1.y < kinectHeight) {
+      this.closeness = 1;
+    } else {
+      this.closeness = Math.min(1,(kinectWidth)/pt1.sub(centerkinect).length());
+    }
   }
   
   void drawTail() {
