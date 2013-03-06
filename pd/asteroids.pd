@@ -1,7 +1,7 @@
-#N canvas 48 154 774 792 10;
+#N canvas 254 65 774 792 10;
 #X obj 82 37 inlet;
-#X obj 82 736 outlet~;
-#X obj 247 736 outlet~;
+#X obj 82 738 outlet~;
+#X obj 151 738 outlet~;
 #X text 162 21 1: id 2: x 3: y 4: curvature 5: force magnitude 6: hue
 ;
 #N canvas 403 22 839 847 thesynths 0;
@@ -257,8 +257,8 @@
 #A 0 0 5 12 17 24 29 36 41;
 #X coords 0 0 8 24 200 140 1 0 0;
 #X restore 547 388 graph;
-#X obj 82 688 *~ 1;
-#X obj 190 693 *~ 1;
+#X obj 82 708 *~ 1;
+#X obj 151 708 *~ 1;
 #N canvas 0 22 450 278 (subpatch) 0;
 #X array asteroidenvelope 100 float 5;
 #A 0 0.964275 0.957133 0.94999 0.942847 0.935704 0.928562 0.928562
@@ -280,7 +280,7 @@
 -1;
 #X text 22 15 reset;
 #X obj 7 97 send RESET;
-#N canvas 680 365 450 300 volume 1;
+#N canvas 680 365 450 300 volume 0;
 #X obj 26 11 inlet;
 #X obj 42 216 outlet;
 #X obj 89 56 * 100;
@@ -326,7 +326,7 @@
 #X connect 2 0 3 0;
 #X connect 3 0 1 0;
 #X restore 252 294 pd pan;
-#N canvas 580 593 450 300 notespeed 1;
+#N canvas 580 593 450 300 notespeed 0;
 #X obj 63 37 inlet;
 #X obj 71 174 outlet;
 #X obj 58 85 * 1.6;
@@ -366,7 +366,7 @@
 #X connect 8 0 9 0;
 #X connect 9 0 4 0;
 #X restore 94 442 pd basenote;
-#N canvas 365 551 450 300 tone 1;
+#N canvas 365 551 450 300 tone 0;
 #X obj 46 40 inlet;
 #X obj 24 245 outlet;
 #X obj 117 46 inlet;
@@ -391,9 +391,10 @@
 #X connect 11 0 1 0;
 #X restore 210 466 pd tone;
 #X obj 82 598 pack f f f f f f f f f;
+#X obj 82 679 rjlib/e_scompressor 70 5;
 #X connect 0 0 8 0;
-#X connect 4 0 10 0;
-#X connect 4 1 11 0;
+#X connect 4 0 24 0;
+#X connect 4 1 24 1;
 #X connect 6 0 17 0;
 #X connect 6 1 21 0;
 #X connect 8 0 6 0;
@@ -418,3 +419,5 @@
 #X connect 22 0 23 7;
 #X connect 22 1 23 8;
 #X connect 23 0 4 0;
+#X connect 24 0 10 0;
+#X connect 24 1 11 0;

@@ -264,7 +264,8 @@ class GravityShape {
     if (pt1.x > 0 && pt1.x < kinectWidth && pt1.y > 0 && pt1.y < kinectHeight) {
       this.closeness = 1;
     } else {
-      this.closeness = Math.min(1,float(kinectWidth)/(pt1.sub(centerkinect).length()));
+      this.closeness = (float)Math.pow(Math.min(1,float(kinectWidth)/(pt1.sub(centerkinect).length())), 1.6);
+      
     }
   }
   
