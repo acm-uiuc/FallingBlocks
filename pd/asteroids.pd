@@ -2,8 +2,6 @@
 #X obj 82 37 inlet;
 #X obj 82 738 outlet~;
 #X obj 151 738 outlet~;
-#X text 162 21 1: id 2: x 3: y 4: curvature 5: force magnitude 6: hue
-;
 #N canvas 403 22 839 847 thesynths 0;
 #X obj 57 26 inlet;
 #X obj 58 771 outlet~;
@@ -243,7 +241,7 @@
 #X connect 7 0 1 0;
 #X connect 7 1 2 0;
 #X restore 82 639 pd thesynths;
-#X text 218 579 1: synthid 2: high note midi 3: low note midi 4: crossfade
+#X text 226 593 1: synthid 2: high note midi 3: low note midi 4: crossfade
 5: pan;
 #X obj 82 113 t f f f;
 #N canvas 0 22 450 278 (subpatch) 0;
@@ -281,21 +279,36 @@
 #X text 22 15 reset;
 #X obj 7 97 send RESET;
 #N canvas 680 365 450 300 volume 0;
-#X obj 26 11 inlet;
-#X obj 42 216 outlet;
-#X obj 89 56 * 100;
-#X obj 92 85 tabread4 asteroidenvelope;
-#X obj 98 19 inlet;
-#X obj 77 154 * 1;
-#X obj 23 70 - 0.3;
-#X obj 22 109 clip 0 1;
+#X obj 26 52 inlet;
+#X obj 42 251 outlet;
+#X obj 89 91 * 100;
+#X obj 92 120 tabread4 asteroidenvelope;
+#X obj 98 54 inlet;
+#X obj 77 189 * 1;
+#X obj 23 105 - 0.3;
+#X obj 22 144 clip 0 1;
+#X obj 262 52 inlet;
+#X obj 261 154 / 200;
+#X obj 56 217 *;
+#X obj 260 114 clip 50 300;
+#X text 326 142 this is a maybe.;
+#X text 19 33 distance;
+#X text 101 31 age;
+#X text 260 30 force;
+#X text 93 225 the volume of the synth is a factor of the distance
+and the age \, and possibly the force applied to it. not sure though.
+;
 #X connect 0 0 6 0;
 #X connect 2 0 3 0;
 #X connect 3 0 5 1;
 #X connect 4 0 2 0;
-#X connect 5 0 1 0;
+#X connect 5 0 10 1;
 #X connect 6 0 7 0;
 #X connect 7 0 5 0;
+#X connect 8 0 11 0;
+#X connect 9 0 10 0;
+#X connect 10 0 1 0;
+#X connect 11 0 9 0;
 #X restore 294 254 pd volume;
 #N canvas 603 480 450 300 idassign 0;
 #X obj 51 56 inlet;
@@ -322,6 +335,8 @@
 #X obj 40 159 outlet;
 #X obj 42 73 / 640;
 #X obj 43 116 clip 0 1;
+#X text 34 9 x position;
+#X text 127 57 the pan is simply the x position. really simple.;
 #X connect 0 0 2 0;
 #X connect 2 0 3 0;
 #X connect 3 0 1 0;
@@ -330,6 +345,9 @@
 #X obj 63 37 inlet;
 #X obj 71 174 outlet;
 #X obj 58 85 * 1.6;
+#X text 30 199 the sequencer has a note speed \, which is how fast
+the envelope is. this is different from how fast it moves through the
+sequence.;
 #X connect 0 0 2 0;
 #X connect 2 0 1 0;
 #X restore 215 328 pd notespeed;
@@ -340,13 +358,15 @@
 #X obj 146 73 - 620;
 #X obj 140 47 clip 0 590;
 #X obj 144 104 * 1;
+#X text 28 245 the note spacing is how fast the sequencer moves throughout
+the notes.;
 #X connect 0 0 4 0;
 #X connect 2 0 1 0;
 #X connect 3 0 5 0;
 #X connect 4 0 3 0;
 #X connect 5 0 2 0;
 #X restore 165 379 pd notespacing;
-#N canvas 716 346 455 408 basenote 0;
+#N canvas 716 346 455 408 basenote 1;
 #X obj 40 27 inlet;
 #X obj 58 341 outlet;
 #X obj 84 29 inlet;
@@ -357,6 +377,7 @@
 #X obj 143 57 - 480;
 #X obj 122 91 / -100;
 #X obj 146 133 clip 0 8;
+#X text 195 320 at this point \, it's always 40;
 #X connect 0 0 3 0;
 #X connect 2 0 7 0;
 #X connect 3 0 6 0;
@@ -392,32 +413,35 @@
 #X restore 210 466 pd tone;
 #X obj 82 598 pack f f f f f f f f f;
 #X obj 82 679 rjlib/e_scompressor 70 5;
-#X connect 0 0 8 0;
-#X connect 4 0 24 0;
-#X connect 4 1 24 1;
-#X connect 6 0 17 0;
-#X connect 6 1 21 0;
-#X connect 8 0 6 0;
-#X connect 8 1 18 0;
-#X connect 8 1 22 0;
-#X connect 8 2 21 1;
-#X connect 8 2 22 1;
-#X connect 8 3 19 0;
-#X connect 8 4 20 0;
-#X connect 8 6 16 0;
-#X connect 8 7 16 1;
-#X connect 10 0 1 0;
-#X connect 11 0 2 0;
-#X connect 13 0 15 0;
-#X connect 16 0 23 6;
-#X connect 17 0 23 0;
-#X connect 17 1 23 1;
-#X connect 18 0 23 5;
-#X connect 19 0 23 4;
-#X connect 20 0 23 3;
-#X connect 21 0 23 2;
-#X connect 22 0 23 7;
-#X connect 22 1 23 8;
-#X connect 23 0 4 0;
-#X connect 24 0 10 0;
-#X connect 24 1 11 0;
+#X text 162 21 1: id 2: x 3: y 4: curvature 5: force magnitude 6: hue
+7: distance 8: age;
+#X connect 0 0 7 0;
+#X connect 3 0 23 0;
+#X connect 3 1 23 1;
+#X connect 5 0 16 0;
+#X connect 5 1 20 0;
+#X connect 7 0 5 0;
+#X connect 7 1 17 0;
+#X connect 7 1 21 0;
+#X connect 7 2 20 1;
+#X connect 7 2 21 1;
+#X connect 7 3 18 0;
+#X connect 7 4 19 0;
+#X connect 7 4 15 2;
+#X connect 7 6 15 0;
+#X connect 7 7 15 1;
+#X connect 9 0 1 0;
+#X connect 10 0 2 0;
+#X connect 12 0 14 0;
+#X connect 15 0 22 6;
+#X connect 16 0 22 0;
+#X connect 16 1 22 1;
+#X connect 17 0 22 5;
+#X connect 18 0 22 4;
+#X connect 19 0 22 3;
+#X connect 20 0 22 2;
+#X connect 21 0 22 7;
+#X connect 21 1 22 8;
+#X connect 22 0 3 0;
+#X connect 23 0 9 0;
+#X connect 23 1 10 0;
