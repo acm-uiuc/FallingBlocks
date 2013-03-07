@@ -396,7 +396,7 @@ void addForceAbs(float x, float y, float dx, float dy, float hue) {
         float velocityMult = 30.0f;
 
         int index = fluidSolver.getIndexForNormalizedPosition(x, y);
-        println("Adding force at "+x+" and "+y+" at index: "+index);
+        //println("Adding force at "+x+" and "+y+" at index: "+index);
 
 
         fluidSolver.uOld[index] += dx * velocityMult;
