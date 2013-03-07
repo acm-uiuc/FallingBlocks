@@ -52,8 +52,8 @@ class Particle {
         age = 0;
         maxLife = 20;
         if (random(0, 20) <= 1) {
-          maxLife = 200;
-          mass = 0.4;
+          maxLife = 100;
+          mass = 0.2;
         }
     }
 
@@ -65,9 +65,9 @@ class Particle {
         age += 1; // add one to the age every time until it gets to 20, then die
 
         // read fluid info and add to velocity
-        int fluidIndex = fluidSolver.getIndexForNormalizedPosition(x / float(width), y / float(height) );
-        vx = fluidSolver.u[fluidIndex] * width * mass * FLUID_FORCE + vx * MOMENTUM;
-        vy = fluidSolver.v[fluidIndex] * height * mass * FLUID_FORCE + vy * MOMENTUM;
+        int fluidIndex = fluidSolver.getIndexForNormalizedPosition(x / float(kinectWidth), y / float(kinectHeight) );
+        vx = fluidSolver.u[fluidIndex] * kinectWidth * mass * FLUID_FORCE + vx * MOMENTUM;
+        vy = fluidSolver.v[fluidIndex] * kinectHeight * mass * FLUID_FORCE + vy * MOMENTUM;
 
         // update position
         x += vx;
@@ -111,7 +111,7 @@ class Particle {
         return;  // don't draw it
       }
       //fill(255,255,255,alpha);
-      fill(255, 255, 255, 255*(0.8-age/maxLife)); // make it fade out as it ages
+      fill(255, 255, 255, 255*(1-age/maxLife)); // make it fade out as it ages
       ellipse(x,y,radius,radius);
     }
 

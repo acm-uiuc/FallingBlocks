@@ -204,6 +204,7 @@ class GravityShape {
     
     
     // get the pixel coordinates of the body
+    pushStyle();
     float alpha = 150 - framecount * 150/lifetime;
     colorMode(HSB, 360, 100, 100);
     float hue = lerp(260, -10, forcemag/530);
@@ -225,6 +226,9 @@ class GravityShape {
     rect(50, 100+(id%50)*2, this.forcemag*1, 2);
     //*/
   
+    popStyle();
+    
+    
     while (path.size() > MAX_PATH) path.poll();
   }
   
@@ -248,6 +252,8 @@ class GravityShape {
     this.velx = vel.x;
     this.vely = vel.y;
     this.speed = vel.length();
+    
+    addForce(pt1.x, pt1.y, this.velx/3, this.vely/3, 0);
   }
   
   void calculateForce() {
@@ -352,7 +358,7 @@ class GravityUser {
         int y = int(random(0, kinectHeight));
         int loc = int(x+y*kinectWidth);
         if (map[loc] != 0) {
-          float radius = ((5-(float(depth[loc])/1000))*2);   // originally : ((5-(float(depth[loc])/1000))*2)
+          float radius = ((5-(float(depth[loc])/1000))*0.75);   // originally : ((5-(float(depth[loc])/1000))*2)
           particles.addParticle(x, y, radius);
           
           // read fluid info and add to velocity
@@ -381,7 +387,6 @@ void addForce(float x, float y, float dx, float dy, float hue) {
 
 void addForceAbs(float x, float y, float dx, float dy, float hue) {
     float speed = dx * dx  + dy * dy * (kinectHeight)/(kinectWidth);    // balance the x and y components of speed with the screen aspect ratio
-
     if(speed > 0) {
         if(x<0) x = 0; 
         else if(x>1) x = 1;
@@ -391,6 +396,8 @@ void addForceAbs(float x, float y, float dx, float dy, float hue) {
         float velocityMult = 30.0f;
 
         int index = fluidSolver.getIndexForNormalizedPosition(x, y);
+        println("Adding force at "+x+" and "+y+" at index: "+index);
+
 
         fluidSolver.uOld[index] += dx * velocityMult;
         fluidSolver.vOld[index] += dy * velocityMult;

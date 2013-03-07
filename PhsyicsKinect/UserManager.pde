@@ -67,6 +67,8 @@ class UserInfo {
   float width, lowx, highx;
   PVector lefthand = new PVector();
   PVector righthand = new PVector();
+  
+  PVector[] lastScreenPos = new PVector[15];
  
   public UserInfo(int id) {
     this.id = id;
@@ -74,9 +76,49 @@ class UserInfo {
  
   public void update() {
     updateHands();
+    updateSkeleton();
     findSceneId();
   } 
   
+  void updateSkeleton() {
+  
+    // to get the 3d joint data
+    // from https://github.com/acm-uiuc/FallingBlocks/blob/master/PhsyicsKinect/PhsyicsKinect.pde
+    
+    // this array goes inside for some reason....
+    int[] jointID = {
+      SimpleOpenNI.SKEL_LEFT_HAND, 
+      SimpleOpenNI.SKEL_RIGHT_HAND,
+      SimpleOpenNI.SKEL_HEAD,
+      SimpleOpenNI.SKEL_NECK,
+      SimpleOpenNI.SKEL_LEFT_SHOULDER,
+      SimpleOpenNI.SKEL_RIGHT_SHOULDER,
+      SimpleOpenNI.SKEL_LEFT_ELBOW,
+      SimpleOpenNI.SKEL_RIGHT_ELBOW,
+      SimpleOpenNI.SKEL_TORSO,
+      SimpleOpenNI.SKEL_LEFT_HIP,
+      SimpleOpenNI.SKEL_RIGHT_HIP,
+      SimpleOpenNI.SKEL_LEFT_KNEE,
+      SimpleOpenNI.SKEL_RIGHT_KNEE,
+      SimpleOpenNI.SKEL_LEFT_FOOT,
+      SimpleOpenNI.SKEL_RIGHT_FOOT,
+    };
+  
+    for (int i=0; i<jointID.length; i++) {
+  
+      PVector jointPos = new PVector();  // 3D point
+      PVector screenPos = new PVector();  // 2D point
+      context.getJointPositionSkeleton(id, jointID[i], jointPos);
+      context.convertRealWorldToProjective(jointPos, screenPos);
+      
+      if (lastScreenPos[i] == null) {    // if there's nothing in there   
+        lastScreenPos[i] = screenPos;    // use the initial position
+      }
+      
+      addForce(screenPos.x, screenPos.y, screenPos.x-lastScreenPos[i].x, screenPos.y-lastScreenPos[i].y, 0);
+      lastScreenPos[i] = screenPos; // saving current value for next time (to remember the last point)
+    }
+  }
   
   private void updateHands() {
     float lowx = 100000; //reallllyyy large
