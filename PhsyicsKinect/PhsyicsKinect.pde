@@ -18,6 +18,7 @@ import netP5.*; // osc
 import java.util.LinkedList;
 import java.util.*;
 import java.util.concurrent.*;
+import msafluid.*;
 
 //CONTACT LISTENER
 
@@ -41,7 +42,7 @@ NetAddress pdAddress;
 boolean autoCalib=true;
 
 
-boolean USE_KINECT = false;
+boolean USE_KINECT = true;
 
 
 // PImage to hold incoming imagery and smaller one for blob detection

@@ -300,109 +300,109 @@ class GravityShape {
 
 
 
+
+final float FLUID_WIDTH = 120;
+MSAFluidSolver2D fluidSolver;
+float velScale = 0.0001;
+ParticleSystem particles;
+
 class GravityUser {
-  ArrayList<GUserShape> userpolys = new ArrayList<GUserShape>();
+  //ArrayList<GUserShape> userpolys = new ArrayList<GUserShape>();
+  
   int max_shapes = 7000;
   int numperframe = 300;
+  
+  public void setup() {
+    // create fluid and set options
+    fluidSolver = new MSAFluidSolver2D((int)(FLUID_WIDTH), (int)(FLUID_WIDTH * height/width));
+    fluidSolver.enableRGB(true).setFadeSpeed(0.02).setDeltaT(0.5).setVisc(0.0001);
+  
+    // create particles
+    particles = new ParticleSystem();
+  }
 
   public void update() {
-    HashMap<Integer, UserInfo> scenetouser = usermanager.makeSceneToUserMap();
+    // update the fluid simulation
+    fluidSolver.update();
     
-    cam = context.sceneImage().get();
+    // draw particles
+    createParticles();
+    
+//    for (UserInfo info : usermanager.usermap.values()) {
+//      for (int i=0; i<10; i++) {
+//        float x = random(-5, 5) + info.lefthand.x;
+//        float y = random(-5, 5) + info.lefthand.y;
+//        userpolys.add(new GUserShape(x, y, 4, info.sceneid));
+//      }      
+//      for (int i=0; i<10; i++) {
+//        float x = random(-5, 5) + info.righthand.x;
+//        float y = random(-5, 5) + info.righthand.y;
+//        userpolys.add(new GUserShape(x, y, 4, info.sceneid));
+//      } 
+//    }
+  }
+  
+  // look through the scene to create particles
+  void createParticles() {
     int[] map = context.sceneMap();
     int[] depth = context.depthMap();
     if (frameCount % 1 == 0) {
-      for (int i=0; i<numperframe; i++) {
+      for (int i=0; i<1000; i++) {
         int x = int(random(0, kinectWidth));
         int y = int(random(0, kinectHeight));
-        int loc = kinectXYtoIndex(x,y);
-        if (map[loc] != 0 && userpolys.size() < max_shapes) {
-          float size = 20-depth[loc]/250;
-          size = min(10, size);
-          size = size / 3;
+        int loc = int(x+y*kinectWidth);
+        if (map[loc] != 0) {
+          float radius = ((5-(float(depth[loc])/1000))*2);   // originally : ((5-(float(depth[loc])/1000))*2)
+          particles.addParticle(x, y, radius);
           
-          //userpolys.add(new GUserShape(x, y, size, map[loc], scenetouser.get(map[loc])));
-          userpolys.add(new GUserShape(x, y, size, map[loc]));
+          // read fluid info and add to velocity
+          int fluidIndex = fluidSolver.getIndexForNormalizedPosition(x/kinectWidth, y/kinectHeight);
+          float fluidVX = fluidSolver.u[fluidIndex];
+          float fluidVY = fluidSolver.v[fluidIndex];
+          
+          //addColor(x/kinectWidth, y/kinectHeight, lerp(250, -20, ((dist(0,0,fluidVX, fluidVY)*20000)/360)));
+          //addforce
         }
       }
     }
-    for (UserInfo info : usermanager.usermap.values()) {
-      for (int i=0; i<10; i++) {
-        float x = random(-5, 5) + info.lefthand.x;
-        float y = random(-5, 5) + info.lefthand.y;
-        userpolys.add(new GUserShape(x, y, 4, info.sceneid));
-      }      
-      for (int i=0; i<10; i++) {
-        float x = random(-5, 5) + info.righthand.x;
-        float y = random(-5, 5) + info.righthand.y;
-        userpolys.add(new GUserShape(x, y, 4, info.sceneid));
-      }
-      
-    }
-   
-    
+  
   }
-  
-  
   
   
   public void draw() {
-    long start = millis();
-    // display all the shapes (circles, polygons)
-    // go backwards to allow removal of shapes
-    pushStyle();
-    noStroke();
-    rectMode(CENTER);
-    for (int i=userpolys.size()-1; i>=0; i--) {
-      GUserShape cs = userpolys.get(i);
-      // if the shape is off-screen remove it (see class for more info)
-      if (cs.done()) {
-        userpolys.remove(i);
-      // otherwise update (keep shape outside person) and display (circle or polygon)
-      } else {
-        cs.update();
-        cs.display();
-      }
-    }
-    //println("time in drawing polygons: "+(millis()-start));
-    popStyle();
+    particles.updateAndDraw();
   }
-
 }
 
 
-class GUserShape {
-  float x, y;
-  float size;
-  float lifetime;
-  int userid;
-  int maxlife = 30;
-  
-  public GUserShape(float x, float y, float size, int userid) {
-    this.x = x;
-    this.y = y;
-    this.size = size;
-    this.userid = userid;
-    this.lifetime = 0;
-  }
-  
-  public boolean done() {
-    if (lifetime > maxlife) return true;
-    return false;
-  }
-  
-  public void display() {
-    lifetime += 1;
-    fill(200,100*(1-lifetime/maxlife));
-    rect(x,y,size,size);
-  }
-  public void update() {
-    
-  }
-  
+void addForce(float x, float y, float dx, float dy, float hue) {
+  addForceAbs(x/(kinectWidth), y/(kinectHeight), dx/(kinectWidth), dy/(kinectHeight), hue);
+}
+
+void addForceAbs(float x, float y, float dx, float dy, float hue) {
+    float speed = dx * dx  + dy * dy * (kinectHeight)/(kinectWidth);    // balance the x and y components of speed with the screen aspect ratio
+
+    if(speed > 0) {
+        if(x<0) x = 0; 
+        else if(x>1) x = 1;
+        if(y<0) y = 0; 
+        else if(y>1) y = 1;
+
+        float velocityMult = 30.0f;
+
+        int index = fluidSolver.getIndexForNormalizedPosition(x, y);
+
+        fluidSolver.uOld[index] += dx * velocityMult;
+        fluidSolver.vOld[index] += dy * velocityMult;
+        
+        //particles.addParticle(x*width, y*height);
+    }  
 }
 
 
+
+
+/** Calculation stuff **/ 
 
 public static double findCurvature(double x1, double y1, double x2, double y2, double x3, double y3) {
   double angle1 = getAngle(x1,y1,x2,y2);

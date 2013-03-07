@@ -38,7 +38,7 @@ public class GravityLayer extends Layer {
   public void setup() {
     super.setup();
     gravityshapes.setup();
-    
+    user.setup();
   }
   
   public void update() {
