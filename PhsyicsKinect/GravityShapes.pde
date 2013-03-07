@@ -1,3 +1,12 @@
+float MAX_GRAV_FORCE = 25;
+float HAND_FORCE = 20000;
+float BALL_FORCE = 200;
+float BALL_SIZE = 4;
+int MAX_TRAIL_LENGTH = 10;
+
+int PARTICLES_PER_FRAME = 1000;
+float PARTICLE_SCALE = 0.75;
+
 
 class GravityShapes {
   PGraphics p;
@@ -9,14 +18,23 @@ class GravityShapes {
   
   void setup() {
     //p = createGraphics(width, height);
-    centerkinect = new Vec2(kinectWidth/2, kinectHeight/2);
+    centerkinect = new Vec2(width/2, height/2);
+  }
+  
+  void reset() {
+    synchronized(gravityshapes) {
+      for (GravityShape g : gravityshapes) {
+        g.kill();
+      }
+      gravityshapes.clear();
+    }
   }
   
   void update() {
     synchronized(gravityshapes) {
       if (counter.frame == 0) {
         if (gravityshapes.size() < MAX_SHAPES) {
-          gravityshapes.add(new GravityShape(random(0, kinectWidth), 0, 3, shapecounter));
+          gravityshapes.add(new GravityShape(random(0, width), 0, BALL_SIZE, shapecounter));
           shapecounter += 1;
         }
       }
@@ -24,22 +42,23 @@ class GravityShapes {
       
       for (UserInfo info : usermanager.usermap.values()) {
         if (Float.isNaN(info.lefthand.x) == false) {
-          applyRadialGravity(info.lefthand.x, info.lefthand.y, 10000);
+          applyRadialGravity(info.lefthand.x, info.lefthand.y, HAND_FORCE);
         }
         if (Float.isNaN(info.righthand.x) == false) {
-          applyRadialGravity(info.righthand.x, info.righthand.y, 10000);
+          applyRadialGravity(info.righthand.x, info.righthand.y, HAND_FORCE);
         }
       }
       
       if (USE_KINECT == false) {
-        applyRadialGravity(mouseX*kinectWidth/float(width), mouseY*kinectHeight/float(height), 10000);
+        //applyRadialGravity(mouseX*kinectWidth/float(width), mouseY*kinectHeight/float(height), 10000);
+        applyRadialGravity(mouseX, mouseY, HAND_FORCE);
       }
       
       for (GravityShape g : gravityshapes) {
         Vec2 pos = box2d.getBodyPixelCoord(g.body);
-        applyRadialGravity(pos.x, pos.y, 100);
+        applyRadialGravity(pos.x, pos.y, BALL_FORCE);
       }
-      println("Num asteroids: "+gravityshapes.size());
+      //println("Num asteroids: "+gravityshapes.size());
       
       for (GravityShape g : gravityshapes) {
         g.update();
@@ -61,7 +80,7 @@ class GravityShapes {
       Vec2 shapecenter = shape.body.getPosition();
       Vec2 diff = gravcenter.sub(shapecenter);
       float dist = diff.lengthSquared();
-      dist = max(dist, 20);
+      dist = max(dist, MAX_GRAV_FORCE);
       diff.normalize();
       Vec2 results = diff.mul( g / dist );
       shape.body.applyForce(results, shapecenter);
@@ -92,7 +111,7 @@ class GravityShapes {
     synchronized(gravityshapes) {
       clonedshapes = (ArrayList<GravityShape>)gravityshapes.clone();
     }
-    println("Sending out "+clonedshapes.size()+" messages");
+    //println("Sending out "+clonedshapes.size()+" messages");
     for (GravityShape shape : clonedshapes) {
       Vec2 pos = box2d.getBodyPixelCoord(shape.body);
    
@@ -124,7 +143,6 @@ color[] gravitycolors = {
 
 Vec2 centerkinect;
 
-int MAX_PATH = 10;
 class GravityShape {
   // to hold the box2d body
   Body body;
@@ -229,7 +247,7 @@ class GravityShape {
     popStyle();
     
     
-    while (path.size() > MAX_PATH) path.poll();
+    while (path.size() > MAX_TRAIL_LENGTH) path.poll();
   }
   
   void calculateCurve() {
@@ -267,11 +285,11 @@ class GravityShape {
   
   void calculateCloseness() {
     Vec2 pt1 = path.get(path.size()-1);
-    if (pt1.x > 0 && pt1.x < kinectWidth && pt1.y > 0 && pt1.y < kinectHeight) {
+    if (pt1.x > 0 && pt1.x < width && pt1.y > 0 && pt1.y < height) {
       this.closeness = 1;
     } else {
-      this.closeness = (float)Math.pow(Math.min(1,float(kinectWidth)/(pt1.sub(centerkinect).length())), 1.6);
-      
+      this.closeness = (float)Math.pow(Math.min(1,float(width)/(pt1.sub(centerkinect).length())), 1.6);
+      //UPDATE THIS CODE TODO TODO
     }
   }
   
@@ -281,16 +299,35 @@ class GravityShape {
     
     //float alpha = 150 - framecount * 150/lifetime;
     //stroke(red(col),green(col),blue(col), alpha/2);
+    pushMatrix();
     strokeJoin(ROUND);
     strokeCap(ROUND);
-    strokeWeight(r*3);
+    strokeWeight(r/2);
     noFill();
     beginShape();
-    vertex(path.getFirst().x, path.getFirst().y); // the first control point
+    curveVertex(path.getFirst().x, path.getFirst().y); // the first control point
     for (Vec2 point : path) {
-      vertex(point.x, point.y);
+      curveVertex(point.x, point.y);
     }
     endShape();
+    
+    
+//    strokeJoin(ROUND);
+//    strokeCap(ROUND);
+//    strokeWeight(r);
+//    noFill();
+//    beginShape();
+//    Vec2 pvert = path.getFirst();
+//    //curveVertex(path.getFirst().x, path.getFirst().y/scaleamount); // the first control point
+//    for (Vec2 point : path) {
+//      //curveVertex(point.x, point.y/scaleamount);
+//      
+//      bezier(pvert.x, pvert.y, pvert.x, pvert.y, point.x, point.y, point.x, point.y);
+//      pvert = point;
+//    }
+//    endShape();
+    
+    popMatrix();
   }
 
   // if the shape moves off-screen, destroy the box2d body (important!)
@@ -301,6 +338,9 @@ class GravityShape {
       return true;
     }
     return false;
+  }
+  void kill() {
+    box2d.destroyBody(body);
   }
 }
 
@@ -317,6 +357,7 @@ class GravityUser {
   
   int max_shapes = 7000;
   int numperframe = 300;
+  boolean triggerReset = true;
   
   public void setup() {
     // create fluid and set options
@@ -325,6 +366,16 @@ class GravityUser {
   
     // create particles
     particles = new ParticleSystem();
+  }
+  
+  void reset() {
+    triggerReset = true;
+  }
+  
+  void actualReset() {
+    particles = new ParticleSystem();
+    fluidSolver.reset();
+    triggerReset = false;
   }
 
   public void update() {
@@ -353,12 +404,12 @@ class GravityUser {
     int[] map = context.sceneMap();
     int[] depth = context.depthMap();
     if (frameCount % 1 == 0) {
-      for (int i=0; i<1000; i++) {
+      for (int i=0; i<PARTICLES_PER_FRAME; i++) {
         int x = int(random(0, kinectWidth));
         int y = int(random(0, kinectHeight));
         int loc = int(x+y*kinectWidth);
         if (map[loc] != 0) {
-          float radius = ((5-(float(depth[loc])/1000))*0.75);   // originally : ((5-(float(depth[loc])/1000))*2)
+          float radius = ((5-(float(depth[loc])/1000))*PARTICLE_SCALE);   // originally : ((5-(float(depth[loc])/1000))*2)
           particles.addParticle(x, y, radius);
           
           // read fluid info and add to velocity
@@ -377,16 +428,19 @@ class GravityUser {
   
   public void draw() {
     particles.updateAndDraw();
+    if (triggerReset) {
+      actualReset();
+    }
   }
 }
 
 
 void addForce(float x, float y, float dx, float dy, float hue) {
-  addForceAbs(x/(kinectWidth), y/(kinectHeight), dx/(kinectWidth), dy/(kinectHeight), hue);
+  addForceAbs(x/float(width), y/float(height), dx/float(width), dy/float(height), hue);
 }
 
 void addForceAbs(float x, float y, float dx, float dy, float hue) {
-    float speed = dx * dx  + dy * dy * (kinectHeight)/(kinectWidth);    // balance the x and y components of speed with the screen aspect ratio
+    float speed = dx * dx  + dy * dy * float(height)/float(width);    // balance the x and y components of speed with the screen aspect ratio
     if(speed > 0) {
         if(x<0) x = 0; 
         else if(x>1) x = 1;

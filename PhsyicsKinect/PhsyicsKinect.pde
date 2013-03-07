@@ -29,6 +29,21 @@ final static int FALLING_SHAPES = 2;
 final static int USER_FIGURE_SHAPES = 4;
 final static int GRAVITY_SHAPES = 8;
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 // declare SimpleOpenNI object
 ContextWrapper context;
 // ToxiclibsSupport for displaying polygons
@@ -42,13 +57,14 @@ NetAddress pdAddress;
 boolean autoCalib=true;
 
 
-boolean USE_KINECT = true;
-
+boolean USE_KINECT = false;
+boolean SUPER_FULLSCREEEN = true;
+int NUM_KINECTS = 1;
 
 // PImage to hold incoming imagery and smaller one for blob detection
 PImage cam, blobs;
 // the kinect's dimensions to be used later on for calculations
-int kinectWidth = 640*2;
+int kinectWidth = 640*NUM_KINECTS;
 int kinectHeight = 480;
 // to center and rescale from 640x480 to higher custom resolutions
 float reScaleX,reScaleY;
@@ -64,10 +80,12 @@ ArrayList<Layer> layers = new ArrayList<Layer>();
 UserManager usermanager = new UserManager();
 
 public void init() { 
-  frame.removeNotify(); 
-  frame.setUndecorated(true); 
-  frame.addNotify(); 
-  frame.setLocation(1920, 0);
+  if (SUPER_FULLSCREEEN) {
+    frame.removeNotify(); 
+    frame.setUndecorated(true); 
+    frame.addNotify(); 
+    frame.setLocation(1920, 0);
+  }
   super.init();
 }
 
@@ -76,8 +94,14 @@ void setup() {
   // it's possible to customize this, for example 1920x1080
   //size(800, 600, OPENGL);
   //size(displayWidth, displayHeight, OPENGL);
-  size(1920*2, 1200, OPENGL);
+  if (SUPER_FULLSCREEEN) {
+    size(1280*2, 800, OPENGL);
+  } else {
+    size(displayWidth, displayHeight, OPENGL);
+  }
   frameRate(60);
+  //smooth(8);
+  
   
   if (USE_KINECT) {
     context = new ContextWrapper(new SimpleOpenNI(0,this), new SimpleOpenNI(0, this));
@@ -128,7 +152,10 @@ void setup() {
   bouncy.setup();
   layers.add(bouncy);
   
-  frame.setLocation(1440, 0);
+  if (SUPER_FULLSCREEEN) {
+    //frame.setLocation(1440, 0);
+    frame.setLocation(0, 0);
+  }
   setupOSC();
   context.start();
 }
@@ -171,8 +198,8 @@ void draw() {
   noFill();
   stroke(255,0,0);
   strokeWeight(5);
- rect(5,5,width-10,height-10); 
- println("FPS: "+frameRate);
+ //rect(5,5,width-10,height-10); 
+ //println("FPS: "+frameRate);
 }
 
 void updateAndDrawBox2D() {
@@ -182,11 +209,11 @@ void updateAndDrawBox2D() {
   // take one step in the box2d physics world
   box2d.step();
   int end = millis();
-  println("time in box2d update: "+(end-start));
+  //println("time in box2d update: "+(end-start));
 
   // center and reScale from Kinect to custom dimensions
   //translate(0, (height-kinectHeight*reScale)/2);
-  scale(reScaleX,reScaleY);
+  //scale(reScaleX,reScaleY);
 
   layers.get(0).draw();
 
@@ -195,7 +222,48 @@ void updateAndDrawBox2D() {
 
 
 
-
+/* incoming osc message are forwarded to the oscEvent method. */
+void oscEvent(OscMessage theOscMessage) {
+  /* print the address pattern and the typetag of the received OscMessage */
+  print("### received an osc message.");
+  print(" addrpattern: "+theOscMessage.addrPattern());
+  println(" typetag: "+theOscMessage.typetag());
+  if(theOscMessage.checkAddrPattern("/set/float")==true) {
+    String var = theOscMessage.get(0).stringValue();
+    float value = 0;
+    try {
+      value = theOscMessage.get(1).floatValue();
+    } catch (Exception e) {
+      value = theOscMessage.get(1).intValue();
+    }
+    try {
+      println("Trying to change: '"+var+"' to "+value);
+      this.getClass().getDeclaredField(var).setFloat(this, value);
+    } catch (Exception e) {
+      e.printStackTrace();
+    }    
+  }
+  if(theOscMessage.checkAddrPattern("/set/int")==true) {
+    String var = theOscMessage.get(0).stringValue();
+    int value = 0;
+    try {
+      value = (int)theOscMessage.get(1).floatValue();
+    } catch (Exception e) {
+      value = theOscMessage.get(1).intValue();
+    }
+    try {
+      println("Trying to change: '"+var+"' to "+value);
+      this.getClass().getDeclaredField(var).setInt(this, value);
+    } catch (Exception e) {
+      e.printStackTrace();
+    }    
+  } 
+ 
+  if(theOscMessage.checkAddrPattern("/RESET")==true) {
+    reset();
+  }    
+  
+}
 
 class OSCThread extends Thread {
   public void run() {
@@ -223,6 +291,13 @@ void sendMessage(OscMessage message) {
 
 
 
+
+void reset() {
+  for (Layer l : layers) {
+    l.reset();
+  }
+  
+}
 
 // -----------------------------------------------------------------
 // SimpleOpenNI events

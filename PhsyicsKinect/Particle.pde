@@ -65,9 +65,9 @@ class Particle {
         age += 1; // add one to the age every time until it gets to 20, then die
 
         // read fluid info and add to velocity
-        int fluidIndex = fluidSolver.getIndexForNormalizedPosition(x / float(kinectWidth), y / float(kinectHeight) );
-        vx = fluidSolver.u[fluidIndex] * kinectWidth * mass * FLUID_FORCE + vx * MOMENTUM;
-        vy = fluidSolver.v[fluidIndex] * kinectHeight * mass * FLUID_FORCE + vy * MOMENTUM;
+        int fluidIndex = fluidSolver.getIndexForNormalizedPosition(x / float(width), y / float(height) );
+        vx = fluidSolver.u[fluidIndex] * width * mass * FLUID_FORCE + vx * MOMENTUM;
+        vy = fluidSolver.v[fluidIndex] * height * mass * FLUID_FORCE + vy * MOMENTUM;
 
         // update position
         x += vx;

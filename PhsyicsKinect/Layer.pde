@@ -25,6 +25,9 @@ public class Layer {
     
   }
   
+  public void reset() {
+    
+  }
   
 }
 
@@ -49,10 +52,16 @@ public class GravityLayer extends Layer {
   public void draw() {
     gravityshapes.draw();
     user.draw();
+    rect(5,5,width-10,height-10); 
   }
   
   public void sendOSC() {
     gravityshapes.sendOSC();
+  }
+  
+  public void reset() {
+    gravityshapes.reset();
+    user.reset();
   }
 }
 

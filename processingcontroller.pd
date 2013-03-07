@@ -1,0 +1,71 @@
+#N canvas 75 22 496 856 10;
+#X obj -52 54 sendOSC;
+#X msg -123 7 connect localhost 9124;
+#X floatatom -297 113 5 0 0 0 - - -;
+#X obj -294 80 hsl 300 30 1 127 0 0 empty empty empty -2 -8 0 10 -262144
+-1 -1 1100 1;
+#X obj -297 156 s \$0-sendout;
+#X obj -56 31 r \$0-sendout;
+#X msg -297 135 send /set/float MAX_GRAV_FORCE \$1;
+#X floatatom -298 209 8 0 0 0 - - -;
+#X obj -295 176 hsl 300 30 5000 50000 0 0 empty empty empty -2 -8 0
+10 -262144 -1 -1 10400 1;
+#X obj -298 252 s \$0-sendout;
+#X msg -298 231 send /set/float HAND_FORCE \$1;
+#X floatatom -299 307 8 0 0 0 - - -;
+#X obj -296 274 hsl 300 30 1 500 0 0 empty empty empty -2 -8 0 10 -262144
+-1 -1 11600 1;
+#X obj -299 350 s \$0-sendout;
+#X msg -299 329 send /set/float BALL_FORCE \$1;
+#X text -277 52 FORCE STUFF;
+#X text -259 408 VISUAL STUFF;
+#X floatatom -300 462 8 0 0 0 - - -;
+#X obj -297 429 hsl 300 30 1 20 0 0 empty empty empty -2 -8 0 10 -262144
+-1 -1 9600 1;
+#X obj -300 505 s \$0-sendout;
+#X floatatom -301 559 8 0 0 0 - - -;
+#X obj -298 526 hsl 300 30 2 30 0 0 empty empty empty -2 -8 0 10 -262144
+-1 -1 20100 1;
+#X obj -301 602 s \$0-sendout;
+#X msg -300 484 send /set/float BALL_SIZE \$1;
+#X msg -301 581 send /set/int MAX_TRAIL_LENGTH \$1;
+#X floatatom -301 657 8 0 0 0 - - -;
+#X obj -298 624 hsl 300 30 1 4000 0 0 empty empty empty -2 -8 0 10
+-262144 -1 -1 9700 1;
+#X obj -301 700 s \$0-sendout;
+#X msg -301 679 send /set/int PARTICLES_PER_FRAME \$1;
+#X floatatom -300 756 5 0 0 0 - - -;
+#X obj -297 723 hsl 300 30 0 4 0 0 empty empty empty -2 -8 0 10 -262144
+-1 -1 3100 1;
+#X obj -300 799 s \$0-sendout;
+#X msg -300 778 send /set/float PARTICLE_SCALE \$1;
+#X obj 36 91 bng 100 250 50 0 empty empty empty 17 7 0 10 -262144 -1
+-1;
+#X text 31 71 GIANT RESET BUTTON;
+#X msg 36 201 send /RESET;
+#X obj 36 225 s \$0-sendout;
+#X connect 1 0 0 0;
+#X connect 2 0 6 0;
+#X connect 3 0 2 0;
+#X connect 5 0 0 0;
+#X connect 6 0 4 0;
+#X connect 7 0 10 0;
+#X connect 8 0 7 0;
+#X connect 10 0 9 0;
+#X connect 11 0 14 0;
+#X connect 12 0 11 0;
+#X connect 14 0 13 0;
+#X connect 17 0 23 0;
+#X connect 18 0 17 0;
+#X connect 20 0 24 0;
+#X connect 21 0 20 0;
+#X connect 23 0 19 0;
+#X connect 24 0 22 0;
+#X connect 25 0 28 0;
+#X connect 26 0 25 0;
+#X connect 28 0 27 0;
+#X connect 29 0 32 0;
+#X connect 30 0 29 0;
+#X connect 32 0 31 0;
+#X connect 33 0 35 0;
+#X connect 35 0 36 0;
