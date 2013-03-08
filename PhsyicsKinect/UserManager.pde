@@ -172,7 +172,7 @@ class UserInfo {
     if (results[jointID.length/2] != 0) {
       this.sceneid = results[jointID.length/2];
     } else {
-      println("=== Error! can't find sceneid!");
+      //println("=== Error! can't find sceneid!");
     }
     this.sceneid = id;
     

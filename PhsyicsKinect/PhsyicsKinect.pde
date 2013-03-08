@@ -57,7 +57,7 @@ NetAddress pdAddress;
 boolean autoCalib=true;
 
 
-boolean USE_KINECT = false;
+boolean USE_KINECT = true;
 boolean SUPER_FULLSCREEEN = true;
 int NUM_KINECTS = 1;
 
@@ -95,7 +95,7 @@ void setup() {
   //size(800, 600, OPENGL);
   //size(displayWidth, displayHeight, OPENGL);
   if (SUPER_FULLSCREEEN) {
-    size(1280*2, 800, OPENGL);
+    size(1280*2, 720, OPENGL);
   } else {
     size(displayWidth, displayHeight, OPENGL);
   }
@@ -104,7 +104,8 @@ void setup() {
   
   
   if (USE_KINECT) {
-    context = new ContextWrapper(new SimpleOpenNI(0,this), new SimpleOpenNI(0, this));
+    //context = new ContextWrapper(new SimpleOpenNI(0,this), new SimpleOpenNI(0, this));
+    context = new ContextWrapper(new SimpleOpenNI(0,this));
   } else {
     new SimpleOpenNI(this);
     context = new ContextWrapper(null);
@@ -153,8 +154,8 @@ void setup() {
   layers.add(bouncy);
   
   if (SUPER_FULLSCREEEN) {
-    //frame.setLocation(1440, 0);
-    frame.setLocation(0, 0);
+    frame.setLocation(1440, 0);
+    //frame.setLocation(0, 0);
   }
   setupOSC();
   context.start();
@@ -553,6 +554,9 @@ class ContextWrapper {
           depthmap[kinectWidth*y + x + halfwidth] = map2[halfwidth*y + x];
         }       
       }
+    } else if (context != null) {
+      scenemap = context.sceneMap();
+      depthmap = context.depthMap();
     }
   }
   

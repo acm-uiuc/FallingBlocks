@@ -1,18 +1,24 @@
-float MAX_GRAV_FORCE = 25;
-float HAND_FORCE = 20000;
+float MAX_GRAV_FORCE = 35;
+float HAND_FORCE = 32500;
 float BALL_FORCE = 200;
-float BALL_SIZE = 4;
-int MAX_TRAIL_LENGTH = 10;
+float BALL_SIZE = 4.6;
+float BALL_VIZ_SIZE = 1.5;
+float BALL_ALPHA = 200;
+int MAX_TRAIL_LENGTH = 17;
 
 int PARTICLES_PER_FRAME = 1000;
-float PARTICLE_SCALE = 0.75;
+float PARTICLE_SCALE = 2.2;
+float HAND_SCALE = 1.5;
 
+
+int MAX_PARTICLES = 48;
+int PARTICLE_LIFE = 300;
+int ONSCREEN_SCALE = 0;
 
 class GravityShapes {
   PGraphics p;
   ArrayList<GravityShape> gravityshapes = new ArrayList<GravityShape>();
   int maxshapesperbeat = 1;
-  int MAX_SHAPES = 48;
   int shapecounter = 0;
   
   
@@ -33,7 +39,7 @@ class GravityShapes {
   void update() {
     synchronized(gravityshapes) {
       if (counter.frame == 0) {
-        if (gravityshapes.size() < MAX_SHAPES) {
+        if (gravityshapes.size() < MAX_PARTICLES) {
           gravityshapes.add(new GravityShape(random(0, width), 0, BALL_SIZE, shapecounter));
           shapecounter += 1;
         }
@@ -42,10 +48,10 @@ class GravityShapes {
       
       for (UserInfo info : usermanager.usermap.values()) {
         if (Float.isNaN(info.lefthand.x) == false) {
-          applyRadialGravity(info.lefthand.x, info.lefthand.y, HAND_FORCE);
+          applyRadialGravity(scaleXKinectToScreen(info.lefthand.x), scaleYKinectToScreen(info.lefthand.y), HAND_FORCE);
         }
         if (Float.isNaN(info.righthand.x) == false) {
-          applyRadialGravity(info.righthand.x, info.righthand.y, HAND_FORCE);
+          applyRadialGravity(scaleXKinectToScreen(info.righthand.x), scaleYKinectToScreen(info.righthand.y), HAND_FORCE);
         }
       }
       
@@ -131,6 +137,14 @@ class GravityShapes {
   
 }
 
+float scaleXKinectToScreen(float x) {
+  return x/kinectWidth*width;
+}
+float scaleYKinectToScreen(float y) {
+  return y/kinectHeight*height;
+}
+  
+
 
 // usually one would probably make a generic Shape class and subclass different types (circle, polygon), but that
 // would mean at least 3 instead of 1 class, so for this tutorial it's a combi-class CustomShape for all types of shapes
@@ -150,7 +164,7 @@ class GravityShape {
   float r;
   int id;
   int framecount = 0;
-  int lifetime = 1370;
+  int lifetime = PARTICLE_LIFE;
   LinkedList<Vec2> path = new LinkedList<Vec2>();
   float curvature;
   float velx;
@@ -213,17 +227,21 @@ class GravityShape {
 
   // display the customShape
   void display() {
-    framecount += 1;
+    //framecount += 1;
     Vec2 pos = box2d.getBodyPixelCoord(body);
     path.add(pos);
     calculateCurve();
     calculateVelocityAndSpeed();
     calculateCloseness();
-    
+    if (this.closeness < 1) {
+      framecount += 1;
+    } else {
+      framecount += 1*ONSCREEN_SCALE;
+    }
     
     // get the pixel coordinates of the body
     pushStyle();
-    float alpha = 150 - framecount * 150/lifetime;
+    float alpha = BALL_ALPHA - framecount * BALL_ALPHA/lifetime;
     colorMode(HSB, 360, 100, 100);
     float hue = lerp(260, -10, forcemag/530);
     this.hue = hue;
@@ -232,10 +250,11 @@ class GravityShape {
     drawTail();
     
     noStroke();
-    fill(hue, 65, 75, alpha);
-    ellipse(pos.x, pos.y, r*2, r*2);
+    //fill(hue, 65, 75, alpha);
+    fill(hue, 65, 80, alpha);
+    ellipse(pos.x, pos.y, r*2*BALL_VIZ_SIZE, r*2*BALL_VIZ_SIZE);
     
-    
+    /*
     fill(255,100,100, 100);
     rect(300, 100+(id%50)*2, (this.curvature+0.0)*200, 2);
     fill(100, 100, 100, 100);
@@ -410,17 +429,30 @@ class GravityUser {
         int loc = int(x+y*kinectWidth);
         if (map[loc] != 0) {
           float radius = ((5-(float(depth[loc])/1000))*PARTICLE_SCALE);   // originally : ((5-(float(depth[loc])/1000))*2)
-          particles.addParticle(x, y, radius);
+          particles.addParticle((x/float(kinectWidth))*width, (y/float(kinectHeight))*height, radius);
           
           // read fluid info and add to velocity
-          int fluidIndex = fluidSolver.getIndexForNormalizedPosition(x/kinectWidth, y/kinectHeight);
-          float fluidVX = fluidSolver.u[fluidIndex];
-          float fluidVY = fluidSolver.v[fluidIndex];
+//          int fluidIndex = fluidSolver.getIndexForNormalizedPosition(x/kinectWidth, y/kinectHeight);
+//          float fluidVX = fluidSolver.u[fluidIndex];
+//          float fluidVY = fluidSolver.v[fluidIndex];
           
           //addColor(x/kinectWidth, y/kinectHeight, lerp(250, -20, ((dist(0,0,fluidVX, fluidVY)*20000)/360)));
           //addforce
         }
       }
+    }
+    
+    for (UserInfo info : usermanager.usermap.values()) {
+      for (int i=0; i<10; i++) {
+        float x = random(-5, 5) + info.lefthand.x;
+        float y = random(-5, 5) + info.lefthand.y;
+        particles.addParticle((x/float(kinectWidth))*width, (y/float(kinectHeight))*height, PARTICLE_SCALE*HAND_SCALE);
+      }      
+      for (int i=0; i<10; i++) {
+        float x = random(-5, 5) + info.righthand.x;
+        float y = random(-5, 5) + info.righthand.y;
+        particles.addParticle((x/float(kinectWidth))*width, (y/float(kinectHeight))*height, PARTICLE_SCALE*HAND_SCALE);
+      } 
     }
   
   }

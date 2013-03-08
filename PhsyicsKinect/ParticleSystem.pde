@@ -100,7 +100,7 @@ class ParticleSystem {
 
 
     void addParticle(float x, float y, float radius) {
-        if (curIndex % 100 == 0) println("Added 100th particle");
+        //if (curIndex % 100 == 0) println("Added 100th particle at "+x+" and "+y+ " with radius "+radius);
         particles[curIndex].init(x, y, radius);
         curIndex++;
         if(curIndex >= maxParticles) curIndex = 0;
