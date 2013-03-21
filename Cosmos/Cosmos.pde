@@ -1,11 +1,8 @@
 // Kinect Physics Example by Amnon Owed (15/09/12)
 
 // import libraries
-import processing.opengl.*; // opengl
 import SimpleOpenNI.*; // kinect
 import blobDetection.*; // blobs
-import toxi.geom.*; // toxiclibs shapes and vectors
-import toxi.processing.*; // toxiclibs display
 import pbox2d.*; // shiffman's jbox2d helper library
 import org.jbox2d.collision.shapes.*; // jbox2d
 import org.jbox2d.common.*; // jbox2d
@@ -51,8 +48,6 @@ int SHOW_KINECT_DEBUG = 0;
 
 // declare SimpleOpenNI object
 ContextWrapper context;
-// ToxiclibsSupport for displaying polygons
-ToxiclibsSupport gfx;
 
 // osc interface
 OscP5 oscP5;
@@ -63,7 +58,7 @@ NetAddress lightsAddress;
 boolean autoCalib=true;
 
 
-boolean USE_KINECT = true;
+boolean USE_KINECT = false;
 boolean SUPER_FULLSCREEEN = true;
 int NUM_KINECTS = 1;
 
@@ -86,6 +81,8 @@ OSCThread oscthread = new OSCThread();
 ArrayList<Layer> layers = new ArrayList<Layer>();
 UserManager usermanager = new UserManager();
 
+
+/** #FULLSCREEN
 public void init() { 
   if (SUPER_FULLSCREEEN) {
     frame.removeNotify(); 
@@ -95,17 +92,20 @@ public void init() {
   }
   super.init();
 }
-
+**/
 
 void setup() {
   // it's possible to customize this, for example 1920x1080
   //size(800, 600, OPENGL);
   //size(displayWidth, displayHeight, OPENGL);
+  size(displayWidth, displayHeight, OPENGL);
+  /** #FULLSCREEN
   if (SUPER_FULLSCREEEN) {
     size(1280*2, 720, OPENGL);
   } else {
     size(displayWidth, displayHeight, OPENGL);
   }
+  **/
   frameRate(60);
   //smooth(8);
   
@@ -145,7 +145,6 @@ void setup() {
   }
   
   
-  gfx = new ToxiclibsSupport(this);
   // setup box2d, create world, set gravity
   box2d = new PBox2D(this);
   box2d.createWorld();
@@ -157,10 +156,14 @@ void setup() {
   gravity.setup();
   layers.add(gravity);
   
+  
+  /** #FULLSCREEN
   if (SUPER_FULLSCREEEN) {
     frame.setLocation(1920, 0);
     //frame.setLocation(0, 0);
   }
+  **/
+  
   setupOSC();
   context.start();
 }
