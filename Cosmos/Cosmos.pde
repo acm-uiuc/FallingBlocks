@@ -1,7 +1,6 @@
 // Kinect Physics Example by Amnon Owed (15/09/12)
 
 // import libraries
-import SimpleOpenNI.*; // kinect
 import pbox2d.*; // shiffman's jbox2d helper library
 import org.jbox2d.collision.shapes.*; // jbox2d
 import org.jbox2d.common.*; // jbox2d
@@ -46,7 +45,6 @@ int SHOW_KINECT_DEBUG = 0;
 
 
 // declare SimpleOpenNI object
-ContextWrapper context;
 
 // osc interface
 OscP5 oscP5;
@@ -73,12 +71,10 @@ int autoScreenshotTime = 1000;
 
 // the main PBox2D object in which all the physics-based stuff is happening
 PBox2D box2d;
-Counter counter = new Counter();
 OSCThread oscthread = new OSCThread();
 // list to hold all the custom shapes (circles, polygons)
 
 ArrayList<Layer> layers = new ArrayList<Layer>();
-UserManager usermanager = new UserManager();
 
 
 /** #FULLSCREEN
@@ -109,40 +105,8 @@ void setup() {
   //smooth(8);
   
   
-  if (USE_KINECT) {
-    //context = new ContextWrapper(new SimpleOpenNI(0,this), new SimpleOpenNI(0, this));
-    context = new ContextWrapper(new SimpleOpenNI(0,this));
-  } else {
-    new SimpleOpenNI(this);
-    context = new ContextWrapper(null);
-  }
-  // enable skeleton generation for all joints
-  println("Setting up skeletal tracking");
-  context.enableDepth();
-  //context.enableRGB();
-  //context.enableScene();
-  context.enableUser(SimpleOpenNI.SKEL_PROFILE_ALL);
-  println("Done with skeletal tracking");
-
-  // initialize SimpleOpenNI object
-  if (!context.enableScene()) { 
-    // if context.enableScene() returns false
-    // then the Kinect is not working correctly
-    // make sure the green light is blinking
-    println("Kinect not connected!"); 
-    exit();
-  } else {
-    // mirror the image to be more intuitive
-    context.setMirror(true);
-    // calculate the reScale value
-    // currently it's rescaled to fill the complete width (cuts of top-bottom)
-    // it's also possible to fill the complete height (leaves empty sides)
-    reScaleX = (float) width / kinectWidth;
-    reScaleY = (float) height / kinectHeight;
-    // initialize ToxiclibsSupport object
-    // set random colors (background, blob)
-  }
-  
+  reScaleX = (float) width / kinectWidth;
+  reScaleY = (float) height / kinectHeight;
   
   // setup box2d, create world, set gravity
   box2d = new PBox2D(this);
@@ -164,7 +128,6 @@ void setup() {
   **/
   
   setupOSC();
-  context.start();
 }
 
 void setupOSC() { 
@@ -195,8 +158,6 @@ void draw() {
   background(0);
   // update the SimpleOpenNI object
   //context.update();
-  counter.update();
-  usermanager.update();
   
   pushMatrix();
   updateAndDrawBox2D();
@@ -214,9 +175,6 @@ void draw() {
    screenshot();
  if (autoScreenshotTime > 0 && frameCount % autoScreenshotTime == 0) {
    screenshot();
- }
- if (SHOW_KINECT_DEBUG == 1) {
-   image(context.depthImage(),200,0);
  }
 }
 
@@ -302,7 +260,6 @@ class OSCThread extends Thread {
         for (Layer l : layers) {
           l.sendOSC();
         }
-        usermanager.sendOSC();
         
       } catch (Exception e) {
         e.printStackTrace();
@@ -369,94 +326,6 @@ void triggerScreenshot() {
 
 
 
-// -----------------------------------------------------------------
-// SimpleOpenNI events
-
-void onNewUser(int userId)
-{
-  println("onNewUser - userId: " + userId);
-  println("  start pose detection");
-  
-  if(autoCalib)
-    context.requestCalibrationSkeleton(userId,true);
-  else    
-    context.startPoseDetection("Psi",userId);
-    
-  usermanager.newUser(userId);
-    
-  
-  OscMessage myMessage = new OscMessage("/user/entered");
-  myMessage.add(userId);  
-  sendMessage(myMessage); 
-}
-
-void onLostUser(int userId)
-{
-  println("onLostUser - userId: " + userId);
-  usermanager.lostUser(userId);
-  
-  OscMessage myMessage = new OscMessage("/user/lost");
-  myMessage.add(userId);  
-  sendMessage(myMessage); 
-
-}
-
-void onExitUser(int userId)
-{
-  println("onExitUser - userId: " + userId);
-  usermanager.exitUser(userId);
-
-  
-  OscMessage myMessage = new OscMessage("/user/exit");
-  myMessage.add(userId);  
-  sendMessage(myMessage); }
-
-void onReEnterUser(int userId)
-{
-  println("onReEnterUser - userId: " + userId);
-  usermanager.reenterUser(userId);
-  
-  OscMessage myMessage = new OscMessage("/user/reenter");
-  myMessage.add(userId);  
-  sendMessage(myMessage); }
-
-void onStartCalibration(int userId)
-{
-  println("onStartCalibration - userId: " + userId);
-}
-
-void onEndCalibration(int userId, boolean successfull)
-{
-  println("onEndCalibration - userId: " + userId + ", successfull: " + successfull);
-  
-  if (successfull) 
-  { 
-    println("  User calibrated !!!");
-    context.startTrackingSkeleton(userId); 
-  } 
-  else 
-  { 
-    println("  Failed to calibrate user !!!");
-    println("  Start pose detection");
-    context.startPoseDetection("Psi",userId);
-  }
-}
-
-void onStartPose(String pose,int userId)
-{
-  println("onStartPose - userId: " + userId + ", pose: " + pose);
-  println(" stop pose detection");
-  
-  context.stopPoseDetection(userId); 
-  context.requestCalibrationSkeleton(userId, true);
- 
-}
-
-void onEndPose(String pose,int userId)
-{
-  println("onEndPose - userId: " + userId + ", pose: " + pose);
-}
-
 
 void sendFrame() {
     OscMessage myMessage = new OscMessage("/frame");
@@ -464,145 +333,6 @@ void sendFrame() {
     myMessage.add(frameCount); // add an int to the osc message   
     // send the message
     //sendMessage(myMessage); 
-}
-
-
-
-
-
-
-
-
-
-
-
-
-class ContextWrapper {
-  int[] scenemap = new int[kinectWidth*kinectHeight];
-  int[] depthmap = new int[kinectWidth*kinectHeight];
-  SimpleOpenNI context;
-  SimpleOpenNI context2;
-  
-  
-  Thread runthread = new Thread() {
-    public void run() {
-      while(true) {
-        update();
-        
-        try { Thread.sleep(33); } catch (Exception e) {};
-      }
-    }
-  };
-  
-  public ContextWrapper(SimpleOpenNI context) {
-    this.context = context;
-  }
-  public ContextWrapper(SimpleOpenNI context, SimpleOpenNI context2) {
-    this.context = context;
-    this.context2 = context2;
-  }
-  
-  void start()  {
-    runthread.start();
-  }
-  
-  boolean enableDepth() {
-    if (context != null) context.enableDepth();
-    if (context2 != null) context2.enableDepth();
-    return true;
-  }
-  boolean enableScene() {
-    if (context != null) context.enableScene();
-    if (context2 != null) context2.enableScene();
-    return true;
-  } 
-  boolean enableUser(int x) {
-    if (context != null) context.enableUser(x);
-    if (context2 != null) context2.enableUser(x);
-    return true;
-  }
-  
-  void requestCalibrationSkeleton(int userId, boolean bool) {
-    if (context != null) context.requestCalibrationSkeleton(userId,bool);
-  }
-  
-  void startPoseDetection(String name, int userId) {
-    if (context != null) context.startPoseDetection(name,userId);
-  }
-  
-  void startTrackingSkeleton(int userId) {
-    if (context != null) context.startTrackingSkeleton(userId);
-  }
-  
-  void stopPoseDetection(int userId) {
-    if (context != null) context.stopPoseDetection(userId);
-  }  
-
-  void setMirror(boolean mirrored) {
-    if (context != null) context.setMirror(mirrored);
-    if (context2 != null) context2.setMirror(mirrored);
-    else return;
-  }  
-  
-  void getJointPositionSkeleton(int id, int joint, PVector jointPos) {
-    if (context != null) context.getJointPositionSkeleton(id, joint, jointPos);
-  }
-  
-  void convertRealWorldToProjective(PVector x, PVector y) {
-    if (context != null) context.convertRealWorldToProjective(x, y);
-  }
-  
-  void update() {
-    if (context != null) context.update();
-    if (context2 != null) context2.update();
-    
-    if (context != null && context2 != null) {
-      int[] map1 = context.sceneMap();
-      int[] map2 = context2.sceneMap();
-      
-      int halfwidth = kinectWidth/2;
-      for (int y=0; y < kinectHeight; y++) {
-        for (int x=0; x < halfwidth; x++) {
-          //scenemap[kinectWidth*y + x] = map1[halfwidth*y + x];
-        }
-        for (int x=0; x < halfwidth; x++) {
-          scenemap[kinectWidth*y + x + halfwidth] = map2[halfwidth*y + x];
-        }       
-      }
-      
-      map1 = context.depthMap();
-      map2 = context2.depthMap();
-      for (int y=0; y < kinectHeight; y++) {
-        for (int x=0; x < halfwidth; x++) {
-          //depthmap[kinectWidth*y + x] = map1[halfwidth*y + x];
-        }
-        for (int x=0; x < halfwidth; x++) {
-          depthmap[kinectWidth*y + x + halfwidth] = map2[halfwidth*y + x];
-        }       
-      }
-    } else if (context != null) {
-      scenemap = context.sceneMap();
-      depthmap = context.depthMap();
-    }
-  }
-  
-  public PImage sceneImage() {
-    if (context != null) return context.sceneImage();
-    else return new PImage();
-  }
-  public PImage depthImage() {
-    if (context != null) return context.depthImage();
-    else return new PImage();
-  }
-  
-  public int[] sceneMap() {
-    //if (context != null) return context.sceneMap();
-    return scenemap;
-  }
-  public int[] depthMap() {
-    //if (context != null) return context.depthMap();
-    return depthmap;
-  }
 }
 
 

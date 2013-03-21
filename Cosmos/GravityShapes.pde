@@ -38,23 +38,13 @@ class GravityShapes {
   
   void update() {
     synchronized(gravityshapes) {
-      if (counter.frame == 0) {
+      if (frameCount % 30 == 0) {
         if (gravityshapes.size() < MAX_PARTICLES) {
           gravityshapes.add(new GravityShape(random(0, width), 0, BALL_SIZE, shapecounter));
           shapecounter += 1;
         }
       }
-  
-      
-      for (UserInfo info : usermanager.usermap.values()) {
-        if (Float.isNaN(info.lefthand.x) == false) {
-          applyRadialGravity(scaleXKinectToScreen(info.lefthand.x), scaleYKinectToScreen(info.lefthand.y), HAND_FORCE);
-        }
-        if (Float.isNaN(info.righthand.x) == false) {
-          applyRadialGravity(scaleXKinectToScreen(info.righthand.x), scaleYKinectToScreen(info.righthand.y), HAND_FORCE);
-        }
-      }
-      
+        
       if (USE_KINECT == false) {
         //applyRadialGravity(mouseX*kinectWidth/float(width), mouseY*kinectHeight/float(height), 10000);
         applyRadialGravity(mouseX, mouseY, HAND_FORCE);
@@ -420,6 +410,7 @@ class GravityUser {
   
   // look through the scene to create particles
   void createParticles() {
+    /*
     int[] map = context.sceneMap();
     int[] depth = context.depthMap();
     if (frameCount % 1 == 0) {
@@ -441,6 +432,7 @@ class GravityUser {
         }
       }
     }
+
     
     for (UserInfo info : usermanager.usermap.values()) {
       for (int i=0; i<10; i++) {
@@ -454,7 +446,7 @@ class GravityUser {
         particles.addParticle(scaleXKinectToScreen(x), scaleYKinectToScreen(y), PARTICLE_SCALE*HAND_SCALE);
       } 
     }
-  
+    */ //TODO an alternate is needed
   }
   
   
