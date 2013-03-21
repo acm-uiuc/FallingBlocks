@@ -1,4 +1,4 @@
-float MAX_GRAV_FORCE = 35;
+float MAX_GRAV_FORCE = 45;
 float HAND_FORCE = 32500;
 float BALL_FORCE = 200;
 float BALL_SIZE = 4.6;
@@ -129,7 +129,7 @@ class GravityShapes {
       msg.add(shape.forcemag);
       msg.add(shape.hue);
       msg.add(shape.closeness);
-      msg.add(1-float(shape.framecount)/float(shape.lifetime));
+      msg.add(float(shape.framecount)/float(shape.lifetime));
       sendMessage(msg);
     }
 
@@ -141,7 +141,7 @@ float scaleXKinectToScreen(float x) {
   return x/kinectWidth*width;
 }
 float scaleYKinectToScreen(float y) {
-  return y/kinectHeight*height;
+  return (y+KINECT_BORDER_TOP)/kinectHeight*height*KINECT_VERT_SCALE;
 }
   
 
@@ -429,7 +429,7 @@ class GravityUser {
         int loc = int(x+y*kinectWidth);
         if (map[loc] != 0) {
           float radius = ((5-(float(depth[loc])/1000))*PARTICLE_SCALE);   // originally : ((5-(float(depth[loc])/1000))*2)
-          particles.addParticle((x/float(kinectWidth))*width, (y/float(kinectHeight))*height, radius);
+          particles.addParticle(scaleXKinectToScreen(x), scaleYKinectToScreen(y), radius);
           
           // read fluid info and add to velocity
 //          int fluidIndex = fluidSolver.getIndexForNormalizedPosition(x/kinectWidth, y/kinectHeight);
@@ -446,12 +446,12 @@ class GravityUser {
       for (int i=0; i<10; i++) {
         float x = random(-5, 5) + info.lefthand.x;
         float y = random(-5, 5) + info.lefthand.y;
-        particles.addParticle((x/float(kinectWidth))*width, (y/float(kinectHeight))*height, PARTICLE_SCALE*HAND_SCALE);
+        particles.addParticle(scaleXKinectToScreen(x), scaleYKinectToScreen(y), PARTICLE_SCALE*HAND_SCALE);
       }      
       for (int i=0; i<10; i++) {
         float x = random(-5, 5) + info.righthand.x;
         float y = random(-5, 5) + info.righthand.y;
-        particles.addParticle((x/float(kinectWidth))*width, (y/float(kinectHeight))*height, PARTICLE_SCALE*HAND_SCALE);
+        particles.addParticle(scaleXKinectToScreen(x), scaleYKinectToScreen(y), PARTICLE_SCALE*HAND_SCALE);
       } 
     }
   

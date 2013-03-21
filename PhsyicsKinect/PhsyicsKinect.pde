@@ -35,8 +35,13 @@ final static int GRAVITY_SHAPES = 8;
 
 
 
+int SHOW_BORDER = 0;
 
 
+
+float KINECT_BORDER_TOP = -60;
+float KINECT_VERT_SCALE = 1.57;
+int SHOW_KINECT_DEBUG = 0;
 
 
 
@@ -53,6 +58,7 @@ ToxiclibsSupport gfx;
 OscP5 oscP5;
 // localhost - our connection to puredata
 NetAddress pdAddress;
+NetAddress lightsAddress;
 
 boolean autoCalib=true;
 
@@ -68,7 +74,8 @@ int kinectWidth = 640*NUM_KINECTS;
 int kinectHeight = 480;
 // to center and rescale from 640x480 to higher custom resolutions
 float reScaleX,reScaleY;
-
+boolean takeScreenshot = false;
+int autoScreenshotTime = 1000;
 
 // the main PBox2D object in which all the physics-based stuff is happening
 PBox2D box2d;
@@ -154,7 +161,7 @@ void setup() {
   layers.add(bouncy);
   
   if (SUPER_FULLSCREEEN) {
-    frame.setLocation(1440, 0);
+    frame.setLocation(1920, 0);
     //frame.setLocation(0, 0);
   }
   setupOSC();
@@ -166,6 +173,7 @@ void setupOSC() {
   oscP5 = new OscP5(this,9124);
   // set the remote location to be the localhost on port 5001
   pdAddress = new NetAddress("127.0.0.1",9123);
+  lightsAddress = new NetAddress("127.0.0.1",9125);
   oscthread.start();
 }
 
@@ -196,11 +204,21 @@ void draw() {
   popMatrix();
   
   sendFrame();
-  noFill();
-  stroke(255,0,0);
-  strokeWeight(5);
- //rect(5,5,width-10,height-10); 
+  if (SHOW_BORDER == 1) {
+    noFill();
+    stroke(255,0,0);
+    strokeWeight(5);
+    rect(5,5,width-10,height-10); 
+  }
  //println("FPS: "+frameRate);
+ if (takeScreenshot) 
+   screenshot();
+ if (autoScreenshotTime > 0 && frameCount % autoScreenshotTime == 0) {
+   screenshot();
+ }
+ if (SHOW_KINECT_DEBUG == 1) {
+   image(context.depthImage(),200,0);
+ }
 }
 
 void updateAndDrawBox2D() {
@@ -262,8 +280,19 @@ void oscEvent(OscMessage theOscMessage) {
  
   if(theOscMessage.checkAddrPattern("/RESET")==true) {
     reset();
-  }    
-  
+  }  
+
+  if(theOscMessage.checkAddrPattern("/screenshot")==true) {
+    triggerScreenshot();
+  }      
+  if(theOscMessage.checkAddrPattern("/autoscreenshot")==true) {
+    try {
+      int value = theOscMessage.get(0).intValue();
+      autoScreenshotTime = value;
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+  } 
 }
 
 class OSCThread extends Thread {
@@ -287,6 +316,8 @@ class OSCThread extends Thread {
 
 void sendMessage(OscMessage message) {
   oscP5.send(message, pdAddress);
+  oscP5.send(message, lightsAddress);
+  
 }
 
 
@@ -297,8 +328,47 @@ void reset() {
   for (Layer l : layers) {
     l.reset();
   }
-  
 }
+
+float randomint = random(1,1000000);
+void screenshot() {
+  saveFrame("sketchinstance-"+randomint+"-frame-######.png");
+  println("Saving frame");  
+  takeScreenshot = false;
+}
+void triggerScreenshot() {
+  takeScreenshot = true;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 // -----------------------------------------------------------------
 // SimpleOpenNI events
@@ -451,6 +521,12 @@ void beginContact(Contact c) {
 
 
 
+
+
+
+
+
+
 class ContextWrapper {
   int[] scenemap = new int[kinectWidth*kinectHeight];
   int[] depthmap = new int[kinectWidth*kinectHeight];
@@ -562,6 +638,10 @@ class ContextWrapper {
   
   public PImage sceneImage() {
     if (context != null) return context.sceneImage();
+    else return new PImage();
+  }
+  public PImage depthImage() {
+    if (context != null) return context.depthImage();
     else return new PImage();
   }
   
