@@ -182,7 +182,7 @@ class GravityShape {
     // create a body (polygon or circle based on the r)
     makeBody(x, y, random(-10, 10), -20);
     // get a random color
-    col = usercolors[int(random(0,gravitycolors.length))];
+
   }
 
   void makeBody(float x, float y, float vx, float vy) {

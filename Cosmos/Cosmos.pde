@@ -156,9 +156,6 @@ void setup() {
   Layer gravity = new GravityLayer();
   gravity.setup();
   layers.add(gravity);
-  Layer bouncy = new BouncyLayer();
-  bouncy.setup();
-  layers.add(bouncy);
   
   if (SUPER_FULLSCREEEN) {
     frame.setLocation(1920, 0);
@@ -467,55 +464,6 @@ void sendFrame() {
     //sendMessage(myMessage); 
 }
 
-
-
-
-void beginContact(Contact c) {
-  //println("Contact!"); 
-  
-  Vec2 posBody1 = box2d.getBodyPixelCoord(c.getFixtureA().m_body);
-  Vec2 posBody2 = box2d.getBodyPixelCoord(c.getFixtureB().m_body);
-  
-  Vec2 velBody1 = c.getFixtureA().m_body.m_linearVelocity;
-  Vec2 velBody2 = c.getFixtureB().m_body.m_linearVelocity;
-  Vec2 velDiff = velBody1.sub(velBody2);
-  
-  if (velDiff.length() < 15.01f) return; // no point here.
-  
-  Object obj1 = c.getFixtureA().m_body.m_userData;
-  Object obj2 = c.getFixtureB().m_body.m_userData;
-  if (obj1 instanceof CustomShape) {
-    CustomShape shape = (CustomShape)obj1;
-    shape.hitframe = frameCount;
-    // create an osc message
-    OscMessage myMessage = new OscMessage("/collision");
-   
-    myMessage.add(shape.id); // add an int to the osc message
-    myMessage.add(velDiff.length()); // add an int to the osc message
-    myMessage.add(shape.groupid); // add an int to the osc message
-    myMessage.add(posBody1.x); // add an int to the osc message
-    myMessage.add(posBody1.y); // add an int to the osc message
-   
-    // send the message
-    sendMessage(myMessage); 
-  } 
-  if (obj2 instanceof CustomShape) {
-    CustomShape shape = (CustomShape)obj2;
-    shape.hitframe = frameCount;
-    // create an osc message
-    OscMessage myMessage = new OscMessage("/collision"); // "/collision 3 1.3 302, 400"
-   
-    myMessage.add(shape.id); // add an int to the osc message
-    myMessage.add(velDiff.length()); // add an int to the osc message
-    myMessage.add(shape.groupid); // add an int to the osc message
-    myMessage.add(posBody2.x); // add an int to the osc message
-    myMessage.add(posBody2.y); // add an int to the osc message
-   
-    // send the message
-    sendMessage(myMessage); 
-  }  
-
-}
 
 
 

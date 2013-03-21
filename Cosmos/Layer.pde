@@ -65,24 +65,3 @@ public class GravityLayer extends Layer {
   }
 }
 
-
-public class BouncyLayer extends Layer {
-  MusicBallz musicbox = new MusicBallz();
-  BubbleUser user = new BubbleUser();
-  
-  public void setup() {
-    super.setup();
-    //musicbox.setup();
-    
-  }
-  
-  public void update() {
-    musicbox.update();
-    user.update();
-  }
-  
-  public void draw() {
-    user.draw();
-    musicbox.draw();
-  }
-}
