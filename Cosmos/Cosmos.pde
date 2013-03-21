@@ -67,7 +67,7 @@ int kinectHeight = 480;
 // to center and rescale from 640x480 to higher custom resolutions
 float reScaleX,reScaleY;
 boolean takeScreenshot = false;
-int autoScreenshotTime = 1000;
+int autoScreenshotTime = -1;
 
 // the main PBox2D object in which all the physics-based stuff is happening
 PBox2D box2d;
