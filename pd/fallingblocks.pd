@@ -1,4 +1,4 @@
-#N canvas 231 127 936 804 10;
+#N canvas 683 404 936 804 10;
 #X obj -216 -5141 dumpOSC 9123;
 #X obj -80 -4442 dac~;
 #N canvas 618 27 450 300 freeverb 0;
@@ -7,17 +7,23 @@
 #X obj 226 240 outlet~;
 #X obj 166 206 freeverb~;
 #X obj 244 78 loadbang;
-#X msg 244 116 dry 0.7;
 #X msg 305 117 wet 0.5;
 #X obj 218 160 inlet~;
+#X msg 313 146 roomsize 0.93;
+#X msg 244 116 dry 0.4;
+#X msg 324 171 damping 0.1;
 #X connect 0 0 3 0;
 #X connect 3 0 1 0;
 #X connect 3 1 2 0;
+#X connect 4 0 8 0;
 #X connect 4 0 5 0;
-#X connect 4 0 6 0;
+#X connect 4 0 7 0;
+#X connect 4 0 9 0;
 #X connect 5 0 3 0;
-#X connect 6 0 3 0;
-#X connect 7 0 3 1;
+#X connect 6 0 3 1;
+#X connect 7 0 3 0;
+#X connect 8 0 3 0;
+#X connect 9 0 3 0;
 #X restore -86 -4674 pd freeverb;
 #X obj -190 -5042 simplenotes;
 #X obj -204 -4882 vol;
@@ -35,11 +41,12 @@
 #X obj -163 -4483 env~;
 #X obj -129 -4482 env~;
 #X obj -9 -4512 hsl 128 15 0 127 0 0 empty empty empty -2 -8 0 10 -262144
--1 -1 7800 1;
+-1 -1 11600 1;
 #X obj -12 -4492 / 127;
 #X text 22 -4535 MUTE;
 #X text 401 -4849 make sure you turn the volume up here;
 #X text 149 -4512 make sure you turn the volume up here;
+#X obj -33 -4964 print ASDF;
 #X connect 0 0 9 0;
 #X connect 2 0 10 0;
 #X connect 2 1 11 0;

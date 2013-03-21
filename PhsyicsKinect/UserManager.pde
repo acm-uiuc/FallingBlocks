@@ -115,7 +115,8 @@ class UserInfo {
         lastScreenPos[i] = screenPos;    // use the initial position
       }
       
-      addForce(screenPos.x, screenPos.y, screenPos.x-lastScreenPos[i].x, screenPos.y-lastScreenPos[i].y, 0);
+      //TODO fix this
+      //addForce(screenPos.x, screenPos.y, screenPos.x-lastScreenPos[i].x, screenPos.y-lastScreenPos[i].y, 0);
       lastScreenPos[i] = screenPos; // saving current value for next time (to remember the last point)
     }
   }

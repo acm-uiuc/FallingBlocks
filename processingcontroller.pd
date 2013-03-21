@@ -1,74 +1,106 @@
-#N canvas 60 22 568 856 10;
-#X obj -52 54 sendOSC;
-#X msg -123 7 connect localhost 9124;
-#X floatatom -297 113 5 0 0 0 - - -;
-#X obj -294 80 hsl 300 30 1 127 0 0 empty empty empty -2 -8 0 10 -262144
--1 -1 8400 1;
-#X obj -297 156 s \$0-sendout;
-#X obj -56 31 r \$0-sendout;
-#X msg -297 135 send /set/float MAX_GRAV_FORCE \$1;
-#X floatatom -298 209 8 0 0 0 - - -;
-#X obj -295 176 hsl 300 30 5000 50000 0 0 empty empty empty -2 -8 0
-10 -262144 -1 -1 18400 1;
-#X obj -298 252 s \$0-sendout;
-#X msg -298 231 send /set/float HAND_FORCE \$1;
-#X floatatom -299 307 8 0 0 0 - - -;
-#X obj -296 274 hsl 300 30 1 500 0 0 empty empty empty -2 -8 0 10 -262144
--1 -1 13100 1;
-#X obj -299 350 s \$0-sendout;
-#X msg -299 329 send /set/float BALL_FORCE \$1;
-#X text -277 52 FORCE STUFF;
-#X text -258 452 VISUAL STUFF;
-#X floatatom -299 506 8 0 0 0 - - -;
-#X obj -296 473 hsl 300 30 1 20 0 0 empty empty empty -2 -8 0 10 -262144
--1 -1 5800 1;
-#X obj -299 549 s \$0-sendout;
-#X floatatom -300 603 8 0 0 0 - - -;
-#X obj -297 570 hsl 300 30 2 30 0 0 empty empty empty -2 -8 0 10 -262144
--1 -1 17400 1;
-#X obj -300 646 s \$0-sendout;
-#X msg -299 528 send /set/float BALL_SIZE \$1;
-#X msg -300 625 send /set/int MAX_TRAIL_LENGTH \$1;
-#X floatatom -300 701 8 0 0 0 - - -;
-#X obj -297 668 hsl 300 30 1 4000 0 0 empty empty empty -2 -8 0 10
--262144 -1 -1 8400 1;
-#X obj -300 744 s \$0-sendout;
-#X msg -300 723 send /set/int PARTICLES_PER_FRAME \$1;
-#X floatatom -299 800 5 0 0 0 - - -;
-#X obj -296 767 hsl 300 30 0 10 0 0 empty empty empty -2 -8 0 10 -262144
--1 -1 6000 1;
-#X obj -299 843 s \$0-sendout;
+#N canvas 60 22 556 1074 10;
+#X obj 154 244 sendOSC;
+#X msg 83 197 connect localhost 9124;
+#X floatatom -293 234 5 0 0 0 - - -;
+#X obj -290 201 hsl 300 30 1 127 0 0 empty empty empty -2 -8 0 10 -262144
+-1 -1 0 1;
+#X obj -293 277 s \$0-sendout;
+#X obj 150 221 r \$0-sendout;
+#X msg -293 256 send /set/float MAX_GRAV_FORCE \$1;
+#X floatatom -294 330 8 0 0 0 - - -;
+#X obj -291 297 hsl 300 30 5000 50000 0 0 empty empty empty -2 -8 0
+10 -262144 -1 -1 0 1;
+#X obj -294 373 s \$0-sendout;
+#X msg -294 352 send /set/float HAND_FORCE \$1;
+#X floatatom -295 428 8 0 0 0 - - -;
+#X obj -292 395 hsl 300 30 1 500 0 0 empty empty empty -2 -8 0 10 -262144
+-1 -1 0 1;
+#X obj -295 471 s \$0-sendout;
+#X msg -295 450 send /set/float BALL_FORCE \$1;
+#X text -273 173 FORCE STUFF;
+#X text -254 573 VISUAL STUFF;
+#X floatatom -295 627 8 0 0 0 - - -;
+#X obj -292 594 hsl 300 30 1 20 0 0 empty empty empty -2 -8 0 10 -262144
+-1 -1 0 1;
+#X obj -295 670 s \$0-sendout;
+#X floatatom -296 724 8 0 0 0 - - -;
+#X obj -293 691 hsl 300 30 2 30 0 0 empty empty empty -2 -8 0 10 -262144
+-1 -1 0 1;
+#X obj -296 767 s \$0-sendout;
+#X msg -295 649 send /set/float BALL_SIZE \$1;
+#X msg -296 746 send /set/int MAX_TRAIL_LENGTH \$1;
+#X floatatom -296 822 8 0 0 0 - - -;
+#X obj -293 789 hsl 300 30 1 4000 0 0 empty empty empty -2 -8 0 10
+-262144 -1 -1 0 1;
+#X obj -296 865 s \$0-sendout;
+#X msg -296 844 send /set/int PARTICLES_PER_FRAME \$1;
+#X floatatom -295 921 5 0 0 0 - - -;
+#X obj -292 888 hsl 300 30 0 10 0 0 empty empty empty -2 -8 0 10 -262144
+-1 -1 0 1;
+#X obj -295 964 s \$0-sendout;
 #X obj 94 28 bng 100 250 50 0 empty empty empty 17 7 0 10 -262144 -1
 -1;
 #X text 89 8 GIANT RESET BUTTON;
 #X msg 94 138 send /RESET;
 #X obj 94 162 s \$0-sendout;
-#X msg -299 822 send /set/float PARTICLE_SCALE \$1;
-#X floatatom 22 549 8 0 0 0 - - -;
-#X obj -83 513 hsl 300 30 0 3 0 0 empty empty empty -2 -8 0 10 -262144
--1 -1 12200 1;
-#X obj 22 592 s \$0-sendout;
-#X msg 22 571 send /set/float BALL_VIZ_SIZE \$1;
-#X floatatom 32 249 8 0 0 0 - - -;
-#X obj -73 213 hsl 300 30 1 100 0 0 empty empty empty -2 -8 0 10 -262144
--1 -1 12400 1;
-#X obj 32 292 s \$0-sendout;
-#X msg 32 271 send /set/int MAX_PARTICLES \$1;
-#X floatatom 30 348 8 0 0 0 - - -;
-#X obj -75 312 hsl 300 30 1 2000 0 0 empty empty empty -2 -8 0 10 -262144
--1 -1 4400 1;
-#X obj 30 391 s \$0-sendout;
-#X msg 30 370 send /set/int PARTICLE_LIFE \$1;
-#X floatatom -71 392 8 0 0 0 - - -;
-#X obj -71 435 s \$0-sendout;
-#X msg -71 414 send /set/int ONSCREEN_SCALE \$1;
-#X obj -71 358 tgl 30 0 empty empty empty 17 7 0 10 -262144 -1 -1 0
-1;
-#X floatatom 29 653 8 0 0 0 - - -;
-#X obj -76 617 hsl 300 30 0 255 0 0 empty empty empty -2 -8 0 10 -262144
+#X msg -295 943 send /set/float PARTICLE_SCALE \$1;
+#X floatatom 26 670 8 0 0 0 - - -;
+#X obj -79 634 hsl 300 30 0 3 0 0 empty empty empty -2 -8 0 10 -262144
 -1 -1 0 1;
-#X obj 29 696 s \$0-sendout;
-#X msg 29 675 send /set/float BALL_ALPHA \$1;
+#X obj 26 713 s \$0-sendout;
+#X msg 26 692 send /set/float BALL_VIZ_SIZE \$1;
+#X floatatom 36 370 8 0 0 0 - - -;
+#X obj -69 334 hsl 300 30 1 100 0 0 empty empty empty -2 -8 0 10 -262144
+-1 -1 0 1;
+#X obj 36 413 s \$0-sendout;
+#X msg 36 392 send /set/int MAX_PARTICLES \$1;
+#X floatatom 34 469 8 0 0 0 - - -;
+#X obj -71 433 hsl 300 30 1 2000 0 0 empty empty empty -2 -8 0 10 -262144
+-1 -1 0 1;
+#X obj 34 512 s \$0-sendout;
+#X msg 34 491 send /set/int PARTICLE_LIFE \$1;
+#X floatatom -67 513 8 0 0 0 - - -;
+#X obj -67 556 s \$0-sendout;
+#X msg -67 535 send /set/int ONSCREEN_SCALE \$1;
+#X obj -67 479 tgl 30 0 empty empty empty 17 7 0 10 -262144 -1 -1 0
+1;
+#X floatatom 33 774 8 0 0 0 - - -;
+#X obj -72 738 hsl 300 30 0 255 0 0 empty empty empty -2 -8 0 10 -262144
+-1 -1 0 1;
+#X obj 33 817 s \$0-sendout;
+#X msg 33 796 send /set/float BALL_ALPHA \$1;
+#X obj -289 28 bng 60 250 50 0 empty empty empty 17 7 0 10 -262144
+-1 -1;
+#X obj -289 118 s \$0-sendout;
+#X text -294 8 SCREENSHOT BUTTON;
+#X msg -289 94 send /screenshot;
+#X obj 60 210 loadbang;
+#X floatatom -177 52 8 0 0 0 - - -;
+#X obj -177 95 s \$0-sendout;
+#X msg -177 27 -1;
+#X msg -177 74 send /autoscreenshot \$1;
+#X msg -142 28 2400;
+#X floatatom -284 1077 8 0 0 0 - - -;
+#X obj -284 1120 s \$0-sendout;
+#X obj -284 1043 tgl 30 0 empty empty empty 17 7 0 10 -262144 -1 -1
+0 1;
+#X msg -284 1099 send /set/int SHOW_BORDER \$1;
+#X text -148 974 DEBUG STUFF;
+#X floatatom -223 1033 8 0 0 0 - - -;
+#X obj -223 1076 s \$0-sendout;
+#X obj -223 999 tgl 30 0 empty empty empty 17 7 0 10 -262144 -1 -1
+0 1;
+#X msg -223 1055 send /set/int SHOW_KINECT_DEBUG \$1;
+#X floatatom -2 1052 8 0 0 0 - - -;
+#X obj -107 1016 hsl 300 30 -300 300 0 0 empty empty empty -2 -8 0
+10 -262144 -1 -1 0 1;
+#X obj -2 1095 s \$0-sendout;
+#X floatatom 5 1156 8 0 0 0 - - -;
+#X obj -100 1120 hsl 300 30 0 2 0 0 empty empty empty -2 -8 0 10 -262144
+-1 -1 0 1;
+#X obj 5 1199 s \$0-sendout;
+#X msg -2 1074 send /set/float KINECT_BORDER_TOP \$1;
+#X msg 5 1178 send /set/float KINECT_VERT_SCALE \$1;
 #X connect 1 0 0 0;
 #X connect 2 0 6 0;
 #X connect 3 0 2 0;
@@ -109,3 +141,22 @@
 #X connect 53 0 56 0;
 #X connect 54 0 53 0;
 #X connect 56 0 55 0;
+#X connect 57 0 60 0;
+#X connect 60 0 58 0;
+#X connect 61 0 1 0;
+#X connect 62 0 65 0;
+#X connect 64 0 62 0;
+#X connect 65 0 63 0;
+#X connect 66 0 62 0;
+#X connect 67 0 70 0;
+#X connect 69 0 67 0;
+#X connect 70 0 68 0;
+#X connect 72 0 75 0;
+#X connect 74 0 72 0;
+#X connect 75 0 73 0;
+#X connect 76 0 82 0;
+#X connect 77 0 76 0;
+#X connect 79 0 83 0;
+#X connect 80 0 79 0;
+#X connect 82 0 78 0;
+#X connect 83 0 81 0;
