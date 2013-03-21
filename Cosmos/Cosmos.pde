@@ -2,7 +2,6 @@
 
 // import libraries
 import SimpleOpenNI.*; // kinect
-import blobDetection.*; // blobs
 import pbox2d.*; // shiffman's jbox2d helper library
 import org.jbox2d.collision.shapes.*; // jbox2d
 import org.jbox2d.common.*; // jbox2d
