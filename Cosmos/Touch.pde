@@ -39,11 +39,24 @@ class PointerManager {
     this.listeners.add(handler);
   }
   
+  ArrayList<Pointer> pointers = new ArrayList<Pointer>();
+  
+  public void setPointers(ArrayList<Pointer> pointers) {
+    this.pointers = pointers;
+  }
     
   ArrayList<Pointer> getPointers() { 
-    return new ArrayList<Pointer>(); 
+    return this.pointers; 
   }
 
+}
+
+ArrayList<SetupRunnable> setupRunnables = new ArrayList<SetupRunnable>();
+abstract class SetupRunnable {
+  public SetupRunnable() {
+    setupRunnables.add(this);
+  }
+  public abstract void run();
 }
 
 

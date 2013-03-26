@@ -132,6 +132,9 @@ void setup() {
   **/
   
   setupOSC();
+  for (SetupRunnable s : setupRunnables) {
+    s.run();
+  }
 }
 
 void setupOSC() { 
