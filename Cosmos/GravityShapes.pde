@@ -225,8 +225,8 @@ class GravityShape {
     //framecount += 1;
     Vec2 pos = box2d.getBodyPixelCoord(body);
     path.add(pos);
-    calculateCurve();
-    calculateVelocityAndSpeed();
+    //calculateCurve();
+    //calculateVelocityAndSpeed();
     calculateCloseness();
     if (this.closeness < 1) {
       framecount += 1;
@@ -318,7 +318,7 @@ class GravityShape {
     strokeCap(ROUND);
     strokeWeight(r/2);
     noFill();
-    beginShape();
+    beginShape(LINES);
     vertex(path.getFirst().x, path.getFirst().y); // the first control point
     for (Vec2 point : path) {
       vertex(point.x, point.y);
@@ -458,6 +458,9 @@ class GravityUser {
   
   
   public void draw() {
+    //right now, this is too much for most devices to handle.
+    if (NO_USER_VISUAL) return;
+
     particles.updateAndDraw();
     if (triggerReset) {
       actualReset();
