@@ -50,7 +50,9 @@ class GravityShapes {
         
       if (USE_KINECT == false) {
         //applyRadialGravity(mouseX*kinectWidth/float(width), mouseY*kinectHeight/float(height), 10000);
-        applyRadialGravity(mouseX, mouseY, HAND_FORCE);
+        for (Pointer p : pointerManager.getPointers()) {
+          applyRadialGravity(p.pos.x, p.pos.y, HAND_FORCE);
+        }
       }
       
       for (GravityShape g : gravityshapes) {

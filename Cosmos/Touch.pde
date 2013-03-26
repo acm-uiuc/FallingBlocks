@@ -3,20 +3,20 @@
 class Pointer {
   PVector pos;
   int id;
-  ArrayList<PVector> history;
+  //ArrayList<PVector> history;
   
   Pointer(int id, PVector pos) {
     this.id = id;
     this.pos = pos;
-    history = new ArrayList<PVector>();
-    history.add(pos);
+    //history = new ArrayList<PVector>();
+    //history.add(pos);
   }
   
   void update(PVector newpos) {
     
     
     this.pos = newpos;
-    history.add(newpos);
+    //history.add(newpos);
   }
   
 }
