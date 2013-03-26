@@ -76,6 +76,9 @@ OSCThread oscthread = new OSCThread();
 
 ArrayList<Layer> layers = new ArrayList<Layer>();
 
+/**
+This is Cosmos.
+**/
 
 /** #FULLSCREEN
 public void init() { 
@@ -91,7 +94,7 @@ public void init() {
 
 void setup() {
   // it's possible to customize this, for example 1920x1080
-  //size(800, 600, OPENGL);
+  size(800, 600, OPENGL);
   //size(displayWidth, displayHeight, OPENGL);
   size(displayWidth, displayHeight, OPENGL);
   /** #FULLSCREEN
