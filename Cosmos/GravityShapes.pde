@@ -15,6 +15,9 @@ int MAX_PARTICLES = 48;
 int PARTICLE_LIFE = 300;
 int ONSCREEN_SCALE = 0;
 
+boolean NO_USER_VISUAL = true;
+
+
 class GravityShapes {
   PGraphics p;
   ArrayList<GravityShape> gravityshapes = new ArrayList<GravityShape>();
@@ -314,9 +317,9 @@ class GravityShape {
     strokeWeight(r/2);
     noFill();
     beginShape();
-    curveVertex(path.getFirst().x, path.getFirst().y); // the first control point
+    vertex(path.getFirst().x, path.getFirst().y); // the first control point
     for (Vec2 point : path) {
-      curveVertex(point.x, point.y);
+      vertex(point.x, point.y);
     }
     endShape();
     
@@ -388,6 +391,8 @@ class GravityUser {
   }
 
   public void update() {
+    //right now, this is too much for most devices to handle.
+    if (NO_USER_VISUAL) return;
     // update the fluid simulation
     fluidSolver.update();
     

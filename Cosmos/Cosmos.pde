@@ -37,7 +37,7 @@ int SHOW_BORDER = 0;
 float KINECT_BORDER_TOP = -60;
 float KINECT_VERT_SCALE = 1.57;
 int SHOW_KINECT_DEBUG = 0;
-
+boolean USE_OSC = false;
 
 
 
@@ -94,7 +94,7 @@ public void init() {
 
 void setup() {
   // it's possible to customize this, for example 1920x1080
-  size(800, 600, OPENGL);
+  //size(800, 600, OPENGL);
   //size(displayWidth, displayHeight, OPENGL);
   size(displayWidth, displayHeight, OPENGL);
   /** #FULLSCREEN
@@ -115,7 +115,7 @@ void setup() {
   box2d = new PBox2D(this);
   box2d.createWorld();
   box2d.setGravity(0, -35);
-  box2d.listenForCollisions();
+  //box2d.listenForCollisions();
   
   /* set up layers */
   Layer gravity = new GravityLayer();
@@ -166,6 +166,7 @@ void draw() {
   updateAndDrawBox2D();
   popMatrix();
   
+  /*
   sendFrame();
   if (SHOW_BORDER == 1) {
     noFill();
@@ -179,23 +180,29 @@ void draw() {
  if (autoScreenshotTime > 0 && frameCount % autoScreenshotTime == 0) {
    screenshot();
  }
+ */
 }
 
 void updateAndDrawBox2D() {
-  layers.get(0).update();
-  
   int start = millis();
+  layers.get(0).update();
+  int end = millis();
+  println("time in asteroid update: "+(end-start));
+
+  start = millis();
   // take one step in the box2d physics world
   box2d.step();
-  int end = millis();
-  //println("time in box2d update: "+(end-start));
+  end = millis();
+  println("time in box2d update: "+(end-start));
 
   // center and reScale from Kinect to custom dimensions
   //translate(0, (height-kinectHeight*reScale)/2);
   //scale(reScaleX,reScaleY);
-
+  
+  start = millis();
   layers.get(0).draw();
-
+  end = millis();
+  println("time in draw: "+(end-start));
 }
 
 
@@ -257,7 +264,7 @@ void oscEvent(OscMessage theOscMessage) {
 
 class OSCThread extends Thread {
   public void run() {
-    while(true) {
+    while(USE_OSC) {
       try {
         
         for (Layer l : layers) {
