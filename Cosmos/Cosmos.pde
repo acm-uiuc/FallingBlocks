@@ -72,6 +72,7 @@ int autoScreenshotTime = -1;
 // the main PBox2D object in which all the physics-based stuff is happening
 PBox2D box2d;
 OSCThread oscthread = new OSCThread();
+PointerManager pointerManager = new PointerManager();
 // list to hold all the custom shapes (circles, polygons)
 
 ArrayList<Layer> layers = new ArrayList<Layer>();
