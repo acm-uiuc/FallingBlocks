@@ -11,8 +11,6 @@ import java.util.Collections;
 import oscP5.*; // osc
 import netP5.*; // osc
 import java.util.LinkedList;
-import java.util.*;
-import java.util.concurrent.*;
 import msafluid.*;
 
 //CONTACT LISTENER
