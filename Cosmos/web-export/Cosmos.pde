@@ -10,7 +10,6 @@ import org.jbox2d.collision.Manifold;
 import java.util.Collections;
 import oscP5.*; // osc
 import netP5.*; // osc
-import java.util.LinkedList;
 import msafluid.*;
 
 //CONTACT LISTENER
@@ -511,7 +510,7 @@ class GravityShape {
   int id;
   int framecount = 0;
   int lifetime = PARTICLE_LIFE;
-  LinkedList<Vec2> path = new LinkedList<Vec2>();
+  var path = linkedList();
   float curvature;
   float velx;
   float vely;
@@ -575,7 +574,8 @@ class GravityShape {
   void display() {
     //framecount += 1;
     Vec2 pos = box2d.getBodyPixelCoord(body);
-    path.add(pos);
+	node = linkedListNode(pos);
+    path.add(node);
     //calculateCurve();
     //calculateVelocityAndSpeed();
     calculateCloseness();
@@ -612,25 +612,27 @@ class GravityShape {
     popStyle();
     
     
-    while (path.size() > MAX_TRAIL_LENGTH) path.poll();
+    while (path.getSize() > MAX_TRAIL_LENGTH){
+		path.del(path.getHead());
+	}
   }
   
   void calculateCurve() {
-    if (path.size() < 3) return;
-    int size = path.size();
-    Vec2 pt1 = path.get(size-1);
-    Vec2 pt2 = path.get(size-2);
-    Vec2 pt3 = path.get(size-3);
+    if (path.getSize() < 3) return;
+    int size = path.getSize();
+    Vec2 pt1 = path.get(size-1).key;
+    Vec2 pt2 = path.get(size-2).key;
+    Vec2 pt3 = path.get(size-3).key;
     float newcurve = (float)findCurvature(pt1.x, pt1.y, pt2.x, pt2.y, pt3.x, pt3.y);
     float avgr = 8;
     this.curvature = (this.curvature*avgr+newcurve)/(avgr+1);
   }
   
   void calculateVelocityAndSpeed() {
-    if (path.size() < 2) return;
-    int size = path.size();
-    Vec2 pt1 = path.get(size-1);
-    Vec2 pt2 = path.get(size-2);
+    if (path.getSize() < 2) return;
+    int size = path.getSize();
+    Vec2 pt1 = path.get(size-1).key;
+    Vec2 pt2 = path.get(size-2).key;
     Vec2 vel = pt1.sub(pt2);
     this.velx = vel.x;
     this.vely = vel.y;
@@ -649,7 +651,7 @@ class GravityShape {
   }
   
   void calculateCloseness() {
-    Vec2 pt1 = path.get(path.size()-1);
+    Vec2 pt1 = path.get(path.getSize()-1);
     if (pt1.x > 0 && pt1.x < width && pt1.y > 0 && pt1.y < height) {
       this.closeness = 1;
     } else {
@@ -659,7 +661,7 @@ class GravityShape {
   }
   
   void drawTail() {
-    if (path.size() <= 0) return;
+    if (path.getSize() <= 0) return;
     
     
     //float alpha = 150 - framecount * 150/lifetime;
@@ -670,8 +672,9 @@ class GravityShape {
     strokeWeight(r/2);
     noFill();
     beginShape(LINES);
-    vertex(path.getFirst().x, path.getFirst().y); // the first control point
-    for (Vec2 point : path) {
+    vertex(path.getHead().key.x, path.getHead().key.y); // the first control point
+    for (var i = 0; i < path.getSize(); i++) {
+	  var point = path.get(i).key;
       vertex(point.x, point.y);
     }
     endShape();
