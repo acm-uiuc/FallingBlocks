@@ -377,7 +377,7 @@ class GravityShapes {
   
   void setup() {
     //p = createGraphics(width, height);
-    centerkinect = new Vec2(width/2, height/2);
+    centerkinect = new b2Vec2(width/2, height/2);
   }
   
   void reset() {
@@ -406,7 +406,7 @@ class GravityShapes {
       }
       
       for (GravityShape g : gravityshapes) {
-        Vec2 pos = box2d.getBodyPixelCoord(g.body);
+        b2Vec2 pos = box2d.getBodyPixelCoord(g.body);
         applyRadialGravity(pos.x, pos.y, BALL_FORCE);
       }
       //println("Num asteroids: "+gravityshapes.size());
@@ -420,20 +420,20 @@ class GravityShapes {
   
   public void antigravity() {
     for (GravityShape shape : gravityshapes) {
-      shape.body.applyForce(new Vec2(0, 35), shape.body.getPosition());
+      shape.body.applyForce(new b2Vec2(0, 35), shape.body.getPosition());
     }
   }
   
   public void applyRadialGravity(float x, float y, float g) {
     //println("USER GRAVITY NUMSHAPES: "+gravityshapes.size()+ " AT "+x+", "+y);
-    Vec2 gravcenter = box2d.coordPixelsToWorld(x,y);
+    b2Vec2 gravcenter = box2d.coordPixelsToWorld(x,y);
     for (GravityShape shape : gravityshapes) {
-      Vec2 shapecenter = shape.body.getPosition();
-      Vec2 diff = gravcenter.sub(shapecenter);
+      b2Vec2 shapecenter = shape.body.getPosition();
+      b2Vec2 diff = gravcenter.sub(shapecenter);
       float dist = diff.lengthSquared();
       dist = max(dist, MAX_GRAV_FORCE);
       diff.normalize();
-      Vec2 results = diff.mul( g / dist );
+      b2Vec2 results = diff.mul( g / dist );
       shape.body.applyForce(results, shapecenter);
     }
   }
@@ -464,7 +464,7 @@ class GravityShapes {
     }
     //println("Sending out "+clonedshapes.size()+" messages");
     for (GravityShape shape : clonedshapes) {
-      Vec2 pos = box2d.getBodyPixelCoord(shape.body);
+      b2Vec2 pos = box2d.getBodyPixelCoord(shape.body);
    
       OscMessage msg = new OscMessage("/asteroid"); // "/collision 3 1.3 302, 400"
       msg.add(shape.id); // add an int to the osc message
@@ -500,7 +500,7 @@ color[] gravitycolors = {
   260, 350,
 };
 
-Vec2 centerkinect;
+b2Vec2 centerkinect;
 
 class GravityShape {
   // to hold the box2d body
@@ -535,11 +535,11 @@ class GravityShape {
     // create it and set the initial values for this box2d body's speed and angle
     BodyDef bd = new BodyDef();
     bd.type = BodyType.DYNAMIC;
-    bd.position.set(box2d.coordPixelsToWorld(new Vec2(x, y)));
+    bd.position.set(box2d.coordPixelsToWorld(new b2Vec2(x, y)));
     body = box2d.createBody(bd);
-    //body.setLinearVelocity(new Vec2(random(-8, 8), random(2, 8)));
+    //body.setLinearVelocity(new b2Vec2(random(-8, 8), random(2, 8)));
     //body.setAngularVelocity(random(-5, 5));
-    body.setLinearVelocity(new Vec2(vx, vy));
+    body.setLinearVelocity(new b2Vec2(vx, vy));
     body.setAngularVelocity(5);
     MassData md = new MassData();
     body.getMassData(md);
@@ -573,7 +573,7 @@ class GravityShape {
   // display the customShape
   void display() {
     //framecount += 1;
-    Vec2 pos = box2d.getBodyPixelCoord(body);
+    b2Vec2 pos = box2d.getBodyPixelCoord(body);
 	node = linkedListNode(pos);
     path.add(node);
     //calculateCurve();
@@ -613,16 +613,16 @@ class GravityShape {
     
     
     while (path.getSize() > MAX_TRAIL_LENGTH){
-		path.del(path.getHead());
-	}
+      path.del(path.getHead());
+    }
   }
   
   void calculateCurve() {
     if (path.getSize() < 3) return;
     int size = path.getSize();
-    Vec2 pt1 = path.get(size-1).key;
-    Vec2 pt2 = path.get(size-2).key;
-    Vec2 pt3 = path.get(size-3).key;
+    b2Vec2 pt1 = path.get(size-1).key;
+    b2Vec2 pt2 = path.get(size-2).key;
+    b2Vec2 pt3 = path.get(size-3).key;
     float newcurve = (float)findCurvature(pt1.x, pt1.y, pt2.x, pt2.y, pt3.x, pt3.y);
     float avgr = 8;
     this.curvature = (this.curvature*avgr+newcurve)/(avgr+1);
@@ -631,9 +631,9 @@ class GravityShape {
   void calculateVelocityAndSpeed() {
     if (path.getSize() < 2) return;
     int size = path.getSize();
-    Vec2 pt1 = path.get(size-1).key;
-    Vec2 pt2 = path.get(size-2).key;
-    Vec2 vel = pt1.sub(pt2);
+    b2Vec2 pt1 = path.get(size-1).key;
+    b2Vec2 pt2 = path.get(size-2).key;
+    b2Vec2 vel = pt1.sub(pt2);
     this.velx = vel.x;
     this.vely = vel.y;
     this.speed = vel.length();
@@ -642,7 +642,7 @@ class GravityShape {
   }
   
   void calculateForce() {
-    Vec2 force = body.m_force;
+    b2Vec2 force = body.m_force;
     this.forcex = force.x;
     this.forcey = force.y;
     float newforce = force.length();
@@ -651,7 +651,7 @@ class GravityShape {
   }
   
   void calculateCloseness() {
-    Vec2 pt1 = path.get(path.getSize()-1);
+    b2Vec2 pt1 = path.get(path.getSize()-1);
     if (pt1.x > 0 && pt1.x < width && pt1.y > 0 && pt1.y < height) {
       this.closeness = 1;
     } else {
@@ -674,7 +674,7 @@ class GravityShape {
     beginShape(LINES);
     vertex(path.getHead().key.x, path.getHead().key.y); // the first control point
     for (var i = 0; i < path.getSize(); i++) {
-	  var point = path.get(i).key;
+      var point = path.get(i).key;
       vertex(point.x, point.y);
     }
     endShape();
