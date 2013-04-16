@@ -1,53 +1,18 @@
 // Kinect Physics Example by Amnon Owed (15/09/12)
 
-// import libraries
-import pbox2d.*; // shiffman's jbox2d helper library
-import org.jbox2d.collision.shapes.*; // jbox2d
-import org.jbox2d.common.*; // jbox2d
-import org.jbox2d.dynamics.*; // jbox2d
-import org.jbox2d.dynamics.contacts.*;
-import org.jbox2d.collision.Manifold;
-import java.util.Collections;
-import oscP5.*; // osc
-import netP5.*; // osc
-import msafluid.*;
-
 //CONTACT LISTENER
 
-
-
-final static int USER_SHAPES = 1;
-final static int FALLING_SHAPES = 2;
-final static int USER_FIGURE_SHAPES = 4;
-final static int GRAVITY_SHAPES = 8;
-
-
-
-
-
-
+ int USER_SHAPES = 1;
+ int FALLING_SHAPES = 2;
+ int USER_FIGURE_SHAPES = 4;
+ int GRAVITY_SHAPES = 8;
 
 int SHOW_BORDER = 0;
-
-
 
 float KINECT_BORDER_TOP = -60;
 float KINECT_VERT_SCALE = 1.57;
 int SHOW_KINECT_DEBUG = 0;
 boolean USE_OSC = false;
-
-
-
-
-
-
-// declare SimpleOpenNI object
-
-// osc interface
-OscP5 oscP5;
-// localhost - our connection to puredata
-NetAddress pdAddress;
-NetAddress lightsAddress;
 
 boolean autoCalib=true;
 
@@ -68,7 +33,6 @@ int autoScreenshotTime = -1;
 
 // the main PBox2D object in which all the physics-based stuff is happening
 PBox2D box2d;
-OSCThread oscthread = new OSCThread();
 PointerManager pointerManager = new PointerManager();
 // list to hold all the custom shapes (circles, polygons)
 
@@ -78,30 +42,9 @@ ArrayList<Layer> layers = new ArrayList<Layer>();
 This is Cosmos.
 **/
 
-/** #FULLSCREEN
-public void init() { 
-  if (SUPER_FULLSCREEEN) {
-    frame.removeNotify(); 
-    frame.setUndecorated(true); 
-    frame.addNotify(); 
-    frame.setLocation(1920, 0);
-  }
-  super.init();
-}
-**/
-
 void setup() {
-  // it's possible to customize this, for example 1920x1080
-  //size(800, 600, OPENGL);
-  //size(displayWidth, displayHeight, OPENGL);
   size(displayWidth, displayHeight, OPENGL);
-  /** #FULLSCREEN
-  if (SUPER_FULLSCREEEN) {
-    size(1280*2, 720, OPENGL);
-  } else {
-    size(displayWidth, displayHeight, OPENGL);
-  }
-  **/
+
   frameRate(60);
   //smooth(8);
   
@@ -120,39 +63,10 @@ void setup() {
   gravity.setup();
   layers.add(gravity);
   
-  
-  /** #FULLSCREEN
-  if (SUPER_FULLSCREEEN) {
-    frame.setLocation(1920, 0);
-    //frame.setLocation(0, 0);
-  }
-  **/
-  
-  setupOSC();
   for (SetupRunnable s : setupRunnables) {
     s.run();
   }
 }
-
-void setupOSC() { 
-  // start oscP5, telling it to listen for incoming messages at port 5001 */
-  oscP5 = new OscP5(this,9124);
-  // set the remote location to be the localhost on port 5001
-  pdAddress = new NetAddress("127.0.0.1",9123);
-  lightsAddress = new NetAddress("127.0.0.1",9125);
-  oscthread.start();
-}
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -160,28 +74,11 @@ void setupOSC() {
 
 void draw() {
   background(0);
-  // update the SimpleOpenNI object
-  //context.update();
   
   pushMatrix();
   updateAndDrawBox2D();
   popMatrix();
   
-  /*
-  sendFrame();
-  if (SHOW_BORDER == 1) {
-    noFill();
-    stroke(255,0,0);
-    strokeWeight(5);
-    rect(5,5,width-10,height-10); 
-  }
- //println("FPS: "+frameRate);
- if (takeScreenshot) 
-   screenshot();
- if (autoScreenshotTime > 0 && frameCount % autoScreenshotTime == 0) {
-   screenshot();
- }
- */
 }
 
 void updateAndDrawBox2D() {
@@ -195,100 +92,12 @@ void updateAndDrawBox2D() {
   box2d.step();
   end = millis();
   println("time in box2d update: "+(end-start));
-
-  // center and reScale from Kinect to custom dimensions
-  //translate(0, (height-kinectHeight*reScale)/2);
-  //scale(reScaleX,reScaleY);
   
   start = millis();
   layers.get(0).draw();
   end = millis();
   println("time in draw: "+(end-start));
 }
-
-
-
-
-/* incoming osc message are forwarded to the oscEvent method. */
-void oscEvent(OscMessage theOscMessage) {
-  /* print the address pattern and the typetag of the received OscMessage */
-  print("### received an osc message.");
-  print(" addrpattern: "+theOscMessage.addrPattern());
-  println(" typetag: "+theOscMessage.typetag());
-  if(theOscMessage.checkAddrPattern("/set/float")==true) {
-    String var = theOscMessage.get(0).stringValue();
-    float value = 0;
-    try {
-      value = theOscMessage.get(1).floatValue();
-    } catch (Exception e) {
-      value = theOscMessage.get(1).intValue();
-    }
-    try {
-      println("Trying to change: '"+var+"' to "+value);
-      this.getClass().getDeclaredField(var).setFloat(this, value);
-    } catch (Exception e) {
-      e.printStackTrace();
-    }    
-  }
-  if(theOscMessage.checkAddrPattern("/set/int")==true) {
-    String var = theOscMessage.get(0).stringValue();
-    int value = 0;
-    try {
-      value = (int)theOscMessage.get(1).floatValue();
-    } catch (Exception e) {
-      value = theOscMessage.get(1).intValue();
-    }
-    try {
-      println("Trying to change: '"+var+"' to "+value);
-      this.getClass().getDeclaredField(var).setInt(this, value);
-    } catch (Exception e) {
-      e.printStackTrace();
-    }    
-  } 
- 
-  if(theOscMessage.checkAddrPattern("/RESET")==true) {
-    reset();
-  }  
-
-  if(theOscMessage.checkAddrPattern("/screenshot")==true) {
-    triggerScreenshot();
-  }      
-  if(theOscMessage.checkAddrPattern("/autoscreenshot")==true) {
-    try {
-      int value = theOscMessage.get(0).intValue();
-      autoScreenshotTime = value;
-    } catch (Exception e) {
-      e.printStackTrace();
-    }
-  } 
-}
-
-class OSCThread extends Thread {
-  public void run() {
-    while(USE_OSC) {
-      try {
-        
-        for (Layer l : layers) {
-          l.sendOSC();
-        }
-        
-      } catch (Exception e) {
-        e.printStackTrace();
-      }
-      try { Thread.sleep(100L); } catch (Exception e) { } 
-    }
-  }
-}
-
-
-void sendMessage(OscMessage message) {
-  oscP5.send(message, pdAddress);
-  oscP5.send(message, lightsAddress);
-  
-}
-
-
-
 
 
 void reset() {
@@ -305,45 +114,6 @@ void screenshot() {
 }
 void triggerScreenshot() {
   takeScreenshot = true;
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-void sendFrame() {
-    OscMessage myMessage = new OscMessage("/frame");
-   
-    myMessage.add(frameCount); // add an int to the osc message   
-    // send the message
-    //sendMessage(myMessage); 
 }
 
 
@@ -376,7 +146,6 @@ class GravityShapes {
   
   
   void setup() {
-    //p = createGraphics(width, height);
     centerkinect = new b2Vec2(width/2, height/2);
   }
   
@@ -449,37 +218,11 @@ class GravityShapes {
           gravityshapes.remove(i);
         // otherwise update (keep shape outside person) and display (circle or polygon)
         } else {
-          //cs.update();
           cs.display();
         }
       }
     }
   }
-  
-  
-  void sendOSC() {
-    ArrayList<GravityShape> clonedshapes = null;
-    synchronized(gravityshapes) {
-      clonedshapes = (ArrayList<GravityShape>)gravityshapes.clone();
-    }
-    //println("Sending out "+clonedshapes.size()+" messages");
-    for (GravityShape shape : clonedshapes) {
-      b2Vec2 pos = box2d.getBodyPixelCoord(shape.body);
-   
-      OscMessage msg = new OscMessage("/asteroid"); // "/collision 3 1.3 302, 400"
-      msg.add(shape.id); // add an int to the osc message
-      msg.add(pos.x);
-      msg.add(pos.y);
-      msg.add(shape.curvature);
-      msg.add(shape.forcemag);
-      msg.add(shape.hue);
-      msg.add(shape.closeness);
-      msg.add(float(shape.framecount)/float(shape.lifetime));
-      sendMessage(msg);
-    }
-
-  }
-  
 }
 
 float scaleXKinectToScreen(float x) {
@@ -488,13 +231,6 @@ float scaleXKinectToScreen(float x) {
 float scaleYKinectToScreen(float y) {
   return (y+KINECT_BORDER_TOP)/kinectHeight*height*KINECT_VERT_SCALE;
 }
-  
-
-
-// usually one would probably make a generic Shape class and subclass different types (circle, polygon), but that
-// would mean at least 3 instead of 1 class, so for this tutorial it's a combi-class CustomShape for all types of shapes
-// to save some space and keep the code as concise as possible I took a few shortcuts to prevent repeating the same code
-
 
 color[] gravitycolors = {
   260, 350,
@@ -600,14 +336,6 @@ class GravityShape {
     fill(hue, 65, 80, alpha);
     ellipse(pos.x, pos.y, r*2*BALL_VIZ_SIZE, r*2*BALL_VIZ_SIZE);
     
-    /*
-    fill(255,100,100, 100);
-    rect(300, 100+(id%50)*2, (this.curvature+0.0)*200, 2);
-    fill(100, 100, 100, 100);
-    rect(100, 100+(id%50)*2, this.closeness*100, 2);
-    fill(0, 100,100, 100);
-    rect(50, 100+(id%50)*2, this.forcemag*1, 2);
-    //*/
   
     popStyle();
     
@@ -663,9 +391,7 @@ class GravityShape {
   void drawTail() {
     if (path.getSize() <= 0) return;
     
-    
-    //float alpha = 150 - framecount * 150/lifetime;
-    //stroke(red(col),green(col),blue(col), alpha/2);
+
     pushMatrix();
     strokeJoin(ROUND);
     strokeCap(ROUND);
@@ -678,22 +404,7 @@ class GravityShape {
       vertex(point.x, point.y);
     }
     endShape();
-    
-    
-//    strokeJoin(ROUND);
-//    strokeCap(ROUND);
-//    strokeWeight(r);
-//    noFill();
-//    beginShape();
-//    Vec2 pvert = path.getFirst();
-//    //curveVertex(path.getFirst().x, path.getFirst().y/scaleamount); // the first control point
-//    for (Vec2 point : path) {
-//      //curveVertex(point.x, point.y/scaleamount);
-//      
-//      bezier(pvert.x, pvert.y, pvert.x, pvert.y, point.x, point.y, point.x, point.y);
-//      pvert = point;
-//    }
-//    endShape();
+
     
     popMatrix();
   }
@@ -715,7 +426,7 @@ class GravityShape {
 
 
 
-final float FLUID_WIDTH = 120;
+float FLUID_WIDTH = 120;
 MSAFluidSolver2D fluidSolver;
 float velScale = 0.0001;
 ParticleSystem particles;
@@ -754,60 +465,11 @@ class GravityUser {
     
     // draw particles
     createParticles();
-    
-//    for (UserInfo info : usermanager.usermap.values()) {
-//      for (int i=0; i<10; i++) {
-//        float x = random(-5, 5) + info.lefthand.x;
-//        float y = random(-5, 5) + info.lefthand.y;
-//        userpolys.add(new GUserShape(x, y, 4, info.sceneid));
-//      }      
-//      for (int i=0; i<10; i++) {
-//        float x = random(-5, 5) + info.righthand.x;
-//        float y = random(-5, 5) + info.righthand.y;
-//        userpolys.add(new GUserShape(x, y, 4, info.sceneid));
-//      } 
-//    }
   }
   
   // look through the scene to create particles
   void createParticles() {
-    /*
-    int[] map = context.sceneMap();
-    int[] depth = context.depthMap();
-    if (frameCount % 1 == 0) {
-      for (int i=0; i<PARTICLES_PER_FRAME; i++) {
-        int x = int(random(0, kinectWidth));
-        int y = int(random(0, kinectHeight));
-        int loc = int(x+y*kinectWidth);
-        if (map[loc] != 0) {
-          float radius = ((5-(float(depth[loc])/1000))*PARTICLE_SCALE);   // originally : ((5-(float(depth[loc])/1000))*2)
-          particles.addParticle(scaleXKinectToScreen(x), scaleYKinectToScreen(y), radius);
-          
-          // read fluid info and add to velocity
-//          int fluidIndex = fluidSolver.getIndexForNormalizedPosition(x/kinectWidth, y/kinectHeight);
-//          float fluidVX = fluidSolver.u[fluidIndex];
-//          float fluidVY = fluidSolver.v[fluidIndex];
-          
-          //addColor(x/kinectWidth, y/kinectHeight, lerp(250, -20, ((dist(0,0,fluidVX, fluidVY)*20000)/360)));
-          //addforce
-        }
-      }
-    }
 
-    
-    for (UserInfo info : usermanager.usermap.values()) {
-      for (int i=0; i<10; i++) {
-        float x = random(-5, 5) + info.lefthand.x;
-        float y = random(-5, 5) + info.lefthand.y;
-        particles.addParticle(scaleXKinectToScreen(x), scaleYKinectToScreen(y), PARTICLE_SCALE*HAND_SCALE);
-      }      
-      for (int i=0; i<10; i++) {
-        float x = random(-5, 5) + info.righthand.x;
-        float y = random(-5, 5) + info.righthand.y;
-        particles.addParticle(scaleXKinectToScreen(x), scaleYKinectToScreen(y), PARTICLE_SCALE*HAND_SCALE);
-      } 
-    }
-    */ //TODO an alternate is needed
   }
   
   
@@ -853,7 +515,7 @@ void addForceAbs(float x, float y, float dx, float dy, float hue) {
 
 /** Calculation stuff **/ 
 
-public static double findCurvature(double x1, double y1, double x2, double y2, double x3, double y3) {
+public  double findCurvature(double x1, double y1, double x2, double y2, double x3, double y3) {
   double angle1 = getAngle(x1,y1,x2,y2);
   double angle2 = getAngle(x2,y2,x3,y3);
   if (angle1 == 0.0f || angle2 == 0.0f) {
@@ -861,22 +523,16 @@ public static double findCurvature(double x1, double y1, double x2, double y2, d
   }    
   double result = angle1-angle2;
   if (result > Math.PI) {
-    //System.out.println("Result too big! taking other atan2: "+result+" New: "+(2*Math.PI-result));
-
     result =  (2*Math.PI-result);
   }
   else if (result < -1*Math.PI) {
-    //System.out.println("Result too small! taking other atan2: "+result+" New: "+(2*Math.PI+result));
-
     result =  (2*Math.PI+result);
   }
-
-  //System.out.println("Curvature: "+result+" First Angle:"+angle1+" Second Angle: "+angle2);
-
+  
   return result;
 
 }
-public static double getAngle(double x1, double y1, double x2, double y2) {
+public  double getAngle(double x1, double y1, double x2, double y2) {
   return Math.atan2(x1-x2, y1-y2);
 }
 
@@ -902,12 +558,7 @@ public class Layer {
   
   public void stop() {
     
-  }
-  
-  public void sendOSC() {
-    
-  }
-  
+  }  
   public void reset() {
     
   }
@@ -935,11 +586,6 @@ public class GravityLayer extends Layer {
   public void draw() {
     gravityshapes.draw();
     user.draw();
-    //rect(5,5,width-10,height-10); 
-  }
-  
-  public void sendOSC() {
-    gravityshapes.sendOSC();
   }
   
   public void reset() {
@@ -980,8 +626,8 @@ public class GravityLayer extends Layer {
  * ***********************************************************************/ 
 
 class Particle {
-    final static float MOMENTUM = 0.5;
-    final static float FLUID_FORCE = 0.6;
+     float MOMENTUM = 0.5;
+     float FLUID_FORCE = 0.6;
     
     float x, y;
     float vx, vy;
@@ -1023,35 +669,11 @@ class Particle {
         x += vx;
         y += vy;
 
-//        // bounce of edges
-//        if(x<0) {
-//            x = 0;
-//            vx *= -1;
-//        }
-//        else if(x > width) {
-//            x = width;
-//            vx *= -1;
-//        }
-//
-//        if(y<0) {
-//            y = 0;
-//            vy *= -1;
-//        }
-//        else if(y > height) {
-//            y = height;
-//            vy *= -1;
-//        }
-
         // hackish way to make particles glitter when the slow down a lot
         if(vx * vx + vy * vy < 1) {
             vx = random(-1, 1);
             vy = random(-1, 1);
         }
-
-        // fade out a bit (and kill if alpha == 0);
-        //alpha *= 0.998;
-        //if(alpha < 0.01) alpha = 0;
-
 
     }
 
@@ -1111,7 +733,7 @@ class Particle {
 
 class ParticleSystem {
 
-    final static int maxParticles = 20000;
+     int maxParticles = 20000;
     int curIndex = 0;
 
     Particle[] particles;
@@ -1120,67 +742,22 @@ class ParticleSystem {
         particles = new Particle[maxParticles];
         for(int i=0; i<maxParticles; i++) particles[i] = new Particle();
         curIndex = 0;
-
-//        posArray = BufferUtil.newFloatBuffer(maxParticles * 2 * 2);// 2 coordinates per point, 2 points per particle (current and previous)
-//        colArray = BufferUtil.newFloatBuffer(maxParticles * 3 * 2);
     }
 
 
     void updateAndDraw(){
-//        PGraphicsOpenGL pgl = (PGraphicsOpenGL) g;         // processings opengl graphics object
-//        GL gl = pgl.beginGL();                // JOGL's GL object
-//
-//        gl.glEnable( GL.GL_BLEND );             // enable blending
-//        if(!drawFluid) fadeToColor(gl, 0, 0, 0, 0.05);
-//
-//        gl.glBlendFunc(GL.GL_ONE, GL.GL_ONE);  // additive blending (ignore alpha)
-//        gl.glEnable(GL.GL_LINE_SMOOTH);        // make points round
-//        gl.glLineWidth(1);
-
-
-//        if(renderUsingVA) {
-//            for(int i=0; i<maxParticles; i++) {
-//                if(particles[i].alpha > 0) {
-//                    particles[i].update();
-//                    particles[i].updateVertexArrays(i, posArray, colArray);
-//                }
-//            }    
-//            gl.glEnableClientState(GL.GL_VERTEX_ARRAY);
-//            gl.glVertexPointer(2, GL.GL_FLOAT, 0, posArray);
-//
-//            gl.glEnableClientState(GL.GL_COLOR_ARRAY);
-//            gl.glColorPointer(3, GL.GL_FLOAT, 0, colArray);
-//
-//            gl.glDrawArrays(GL.GL_LINES, 0, maxParticles * 2);
-//        } 
-//        else {
-            //gl.glBegin(GL.GL_LINES);               // start drawing points
             pushStyle();
-            //println("Drawing "+maxParticles+" particles");
             for(int i=0; i<maxParticles; i++) {
-                //if(particles[i].alpha > 0) {
                     rectMode(RADIUS);
                     noStroke();
                     particles[i].update();
                     particles[i].draw();    // use oldschool renderng
-                // }
             }
             popStyle();
-            //gl.glEnd();
-//        }
-
-//        gl.glDisable(GL.GL_BLEND);
-//        pgl.endGL();
     }
 
 
-//    void addParticles(float x, float y, int count ){
-//        for(int i=0; i<count; i++) addParticle(x + random(-15, 15), y + random(-15, 15));
-//    }
-
-
     void addParticle(float x, float y, float radius) {
-        //if (curIndex % 100 == 0) println("Added 100th particle at "+x+" and "+y+ " with radius "+radius);
         particles[curIndex].init(x, y, radius);
         curIndex++;
         if(curIndex >= maxParticles) curIndex = 0;
@@ -1188,24 +765,13 @@ class ParticleSystem {
 
 }
 
-
-
-
-
-
-
-
-
 class Pointer {
   PVector pos;
   int id;
-  //ArrayList<PVector> history;
   
   Pointer(int id, PVector pos) {
     this.id = id;
     this.pos = pos;
-    //history = new ArrayList<PVector>();
-    //history.add(pos);
   }
   
   void update(PVector newpos) {
